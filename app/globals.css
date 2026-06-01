@@ -8,7 +8,7 @@
   --color-primary-600: #d21b2e; /* Logo Red */
   --color-primary-700: #b01525;
 
-  --color-background: #000000;
+  --color-background: #18181b;
   --color-foreground: #ffffff;
   --color-card: #0a0a0a;
   --color-card-border: #1f1f1f;
@@ -16,7 +16,7 @@
 
 @layer base {
   :root {
-    --background: #000000;
+    --background: #18181b;
     --foreground: #ffffff;
   }
 }
@@ -43,7 +43,7 @@ h6 {
   width: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #000000;
+  background: #18181b;
 }
 ::-webkit-scrollbar-thumb {
   background: #222222;

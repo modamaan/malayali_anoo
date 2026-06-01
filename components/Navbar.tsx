@@ -15,6 +15,7 @@ export default function Navbar() {
     { name: "Portfolio", href: "/portfolio" },
     { name: "Events", href: "/events" },
     { name: "Shop", href: "/shop" },
+    { name: "Sponsors", href: "/sponsors" },
     { name: "Contact", href: "/contact" },
   ];
 
@@ -32,6 +33,7 @@ export default function Navbar() {
                 height={80}
                 className="w-48 sm:w-56 md:w-64 h-auto object-contain group-hover:scale-105 transition-transform duration-300"
                 priority
+                loading="eager"
               />
             </Link>
           </div>

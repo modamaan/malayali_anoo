@@ -11,7 +11,7 @@ export default function AboutPage() {
           <span className="text-primary-500">US</span>
         </h1>
         <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto font-light leading-relaxed">
-          We are <span className="text-white font-bold">Malayali Aano</span>. A collective of passionate creators, storytellers, and visual artists dedicated to redefining entertainment in Kerala and beyond.
+          We are <span className="text-white font-bold">Malayali AAANOO</span>. Bringing the essence of Kerala to the UK 🇬🇧 through engaging podcasts, talk shows, and community events.
         </p>
       </section>
 
@@ -31,10 +31,10 @@ export default function AboutPage() {
             <h3 className="text-3xl md:text-4xl font-heading font-bold text-white mb-6">Born from a passion for authentic storytelling</h3>
             <div className="space-y-6 text-gray-300 text-lg">
               <p>
-                What started as a small group of friends with cameras has evolved into a premier media production powerhouse. We believe that every brand, artist, and event has a unique story waiting to be told.
+                What started as a shared passion for authentic storytelling has evolved into the UK's premier Malayalam media platform. We believe in connecting the diaspora through conversations that matter, gameshows that entertain, and events that unite us.
               </p>
               <p>
-                Our mission is simple: to create visually stunning, emotionally resonant content that captuates audiences and leaves a lasting impact. From high-octane live events to intimate documentary portraits, we bring a cinematic edge to everything we touch.
+                Our mission is simple: to keep the essence of Kerala alive across borders. From thought-provoking podcasts and interviews to massive community gatherings, we create content that feels like home.
               </p>
             </div>
             

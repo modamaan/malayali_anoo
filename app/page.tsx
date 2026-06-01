@@ -13,18 +13,18 @@ export default function Home() {
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         <div className="flex justify-between items-end mb-12">
           <div>
-            <h2 className="text-sm font-bold tracking-widest text-primary-500 uppercase mb-2">Featured Work</h2>
-            <h3 className="text-4xl md:text-5xl font-heading font-black text-white">LATEST RELEASES</h3>
+            <h2 className="text-3xl md:text-5xl font-heading font-black text-white mb-2 uppercase tracking-tight">Latest Podcasts & Talk Shows</h2>
+            <p className="text-gray-400">Podcasts • Interviews • Gameshows</p>
           </div>
-          <Link href="/portfolio" className="hidden md:flex items-center text-gray-400 hover:text-white transition-colors group">
-            View all videos
-            <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+          <Link href="/portfolio" className="hidden md:flex items-center text-primary-500 font-bold hover:text-white transition-colors uppercase tracking-widest text-sm">
+            View All 
+            <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {MOCK_VIDEOS.map((video) => (
-            <div key={video.id} className="group cursor-pointer relative overflow-hidden rounded-xl bg-card border border-card-border hover:border-primary-500/50 transition-colors">
+            <Link href={video.link} target="_blank" rel="noopener noreferrer" key={video.id} className="group cursor-pointer relative overflow-hidden rounded-xl bg-card border border-white/5 hover:border-primary-500/50 transition-colors flex flex-col">
               <div className="aspect-video relative overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -32,21 +32,23 @@ export default function Home() {
                   alt={video.title}
                   className="object-cover w-full h-full transform group-hover:scale-105 transition-transform duration-700"
                 />
-                <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors duration-300"></div>
+                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/10 transition-colors duration-300"></div>
 
                 {/* Play Button Overlay */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="w-16 h-16 bg-primary-600/90 rounded-full flex items-center justify-center backdrop-blur-sm">
-                    <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary-600/90 rounded-full flex items-center justify-center backdrop-blur-sm shadow-[0_0_20px_rgba(210,27,46,0.6)] scale-90 group-hover:scale-100 transition-transform">
+                    <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                   </div>
                 </div>
               </div>
-              <div className="p-6">
-                <p className="text-xs text-gray-500 mb-2 font-mono">{video.date}</p>
-                <h4 className="text-xl font-bold text-white mb-2 group-hover:text-primary-500 transition-colors">{video.title}</h4>
-                <p className="text-gray-400 text-sm line-clamp-2">{video.description}</p>
+              <div className="p-4 sm:p-6 flex-grow flex flex-col justify-between">
+                <div>
+                  <p className="text-xs text-primary-500 mb-2 font-mono">{video.date}</p>
+                  <h4 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-primary-500 transition-colors line-clamp-2">{video.title}</h4>
+                </div>
+                <p className="text-gray-400 text-xs sm:text-sm line-clamp-2 mt-2">{video.description}</p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
@@ -54,12 +56,12 @@ export default function Home() {
       {/* Upcoming Events Section (Ticker Style) */}
       <section className="py-24 bg-primary-600 relative overflow-hidden">
         {/* Angled background effect */}
-        <div className="absolute top-0 left-0 right-0 h-16 bg-black -skew-y-2 origin-top-left z-10 -mt-8"></div>
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-black skew-y-2 origin-bottom-left z-10 -mb-8"></div>
+        <div className="absolute top-0 left-0 right-0 h-16 bg-zinc-900 -skew-y-2 origin-top-left z-10 -mt-8"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-zinc-900 skew-y-2 origin-bottom-left z-10 -mb-8"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-heading font-black text-white uppercase tracking-tight">Catch Us Live</h2>
+            <h2 className="text-4xl md:text-6xl font-heading font-black text-white uppercase tracking-tight">Community Events</h2>
           </div>
 
           <div className="space-y-6">
@@ -81,11 +83,22 @@ export default function Home() {
 
                 <div className="md:w-1/3 text-center md:text-left text-gray-200">
                   <p>{event.description}</p>
+                  {/* @ts-ignore */}
+                  {event.price && <p className="text-primary-500 font-bold mt-2">{event.price}</p>}
                 </div>
 
                 <div className="md:w-1/4 flex justify-end w-full">
-                  <Link href={`/events/${event.id}`} className="px-6 py-3 w-full text-center bg-black hover:bg-white hover:text-black text-white font-bold rounded-full transition-colors">
-                    Details
+                  <Link 
+                    /* @ts-ignore */
+                    href={event.ticketLink || `/events/${event.id}`} 
+                    /* @ts-ignore */
+                    target={event.ticketLink ? "_blank" : "_self"}
+                    /* @ts-ignore */
+                    rel={event.ticketLink ? "noopener noreferrer" : ""}
+                    className="px-6 py-3 w-full text-center bg-zinc-950 hover:bg-white hover:text-black text-white font-bold rounded-full transition-colors"
+                  >
+                    {/* @ts-ignore */}
+                    {event.ticketLink ? "Register Now" : "Details"}
                   </Link>
                 </div>
               </div>
@@ -95,7 +108,7 @@ export default function Home() {
       </section>
 
       {/* Sponsors Carousel */}
-      <section className="py-24 bg-black border-t border-white/5">
+      <section className="py-24 bg-zinc-900 border-t border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-center text-gray-500 uppercase tracking-widest text-sm font-bold mb-10">Trusted By Our Partners</p>
 
