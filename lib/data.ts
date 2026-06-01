@@ -99,25 +99,25 @@ export const MOCK_SPONSORS = [
   {
     id: "s1",
     name: "Sponsor One",
-    logoUrl: "https://via.placeholder.com/200x100.png?text=Sponsor+One",
+    logoUrl: "https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?q=80&w=400&auto=format&fit=crop",
     website: "#",
   },
   {
     id: "s2",
     name: "Sponsor Two",
-    logoUrl: "https://via.placeholder.com/200x100.png?text=Sponsor+Two",
+    logoUrl: "https://images.unsplash.com/photo-1614680376408-142c2be9580b?q=80&w=400&auto=format&fit=crop",
     website: "#",
   },
   {
     id: "s3",
     name: "Sponsor Three",
-    logoUrl: "https://via.placeholder.com/200x100.png?text=Sponsor+Three",
+    logoUrl: "https://images.unsplash.com/photo-1614680376593-902f74a0bb7b?q=80&w=400&auto=format&fit=crop",
     website: "#",
   },
   {
     id: "s4",
     name: "Sponsor Four",
-    logoUrl: "https://via.placeholder.com/200x100.png?text=Sponsor+Four",
+    logoUrl: "https://images.unsplash.com/photo-1614680376739-414fa991752b?q=80&w=400&auto=format&fit=crop",
     website: "#",
   },
 ];
