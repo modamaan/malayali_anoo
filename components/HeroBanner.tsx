@@ -7,7 +7,7 @@ import { MOCK_BANNERS } from "@/lib/data";
 
 export default function HeroBanner() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isMuted, setIsMuted] = useState(false); // Default sound available
+  const [isMuted, setIsMuted] = useState(true); // MUST default to true for browsers to allow autoplay on page load
 
   useEffect(() => {
     let timeouts: NodeJS.Timeout[] = [];

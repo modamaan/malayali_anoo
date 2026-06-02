@@ -22,7 +22,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${outfit.variable} h-full antialiased dark`}
     >
-      <body className="flex flex-col min-h-screen bg-zinc-900 text-white font-sans selection:bg-primary-500 selection:text-white">
+      <body className="flex flex-col min-h-screen bg-background text-white font-sans selection:bg-primary-500 selection:text-white">
         <Navbar />
         <main className="flex-grow flex flex-col pt-20">
           {children}

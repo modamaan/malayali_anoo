@@ -62,7 +62,7 @@ export default function Marquee({ items, direction = "left", speed = 30 }: Marqu
             href={item.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="group relative w-64 sm:w-72 md:w-80 lg:w-96 aspect-video flex-shrink-0 overflow-hidden rounded-xl sm:rounded-2xl bg-zinc-900 border border-white/5 transition-colors hover:border-primary-500/50"
+            className="group relative w-64 sm:w-72 md:w-80 lg:w-96 aspect-video flex-shrink-0 overflow-hidden rounded-xl sm:rounded-2xl bg-background border border-white/5 transition-colors hover:border-primary-500/50"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

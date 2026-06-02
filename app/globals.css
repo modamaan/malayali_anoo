@@ -8,7 +8,7 @@
   --color-primary-600: #d21b2e; /* Logo Red */
   --color-primary-700: #b01525;
 
-  --color-background: #18181b;
+  --color-background: #141414;
   --color-foreground: #ffffff;
   --color-card: #0a0a0a;
   --color-card-border: #1f1f1f;
@@ -16,7 +16,7 @@
 
 @layer base {
   :root {
-    --background: #18181b;
+    --background: #141414;
     --foreground: #ffffff;
   }
 }
@@ -55,7 +55,7 @@ h6 {
 
 /* Utilities */
 .glass {
-  background: rgba(10, 10, 10, 0.7);
+  background: rgb(20, 20, 20,0.9);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);

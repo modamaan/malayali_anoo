@@ -24,7 +24,7 @@ export default function Home() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {MOCK_VIDEOS.map((video) => (
-            <Link href={video.link} target="_blank" rel="noopener noreferrer" key={video.id} className="group cursor-pointer relative overflow-hidden rounded-xl bg-card border border-white/5 hover:border-primary-500/50 transition-colors flex flex-col">
+            <Link href={video.link} target="_blank" rel="noopener noreferrer" key={video.id} className="group cursor-pointer relative overflow-hidden rounded-xl bg-black/20 backdrop-blur-sm border border-white/5 hover:border-primary-500/50 transition-colors flex flex-col">
               <div className="aspect-video relative overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -56,8 +56,8 @@ export default function Home() {
       {/* Upcoming Events Section (Ticker Style) */}
       <section className="py-24 bg-primary-600 relative overflow-hidden">
         {/* Angled background effect */}
-        <div className="absolute top-0 left-0 right-0 h-16 bg-zinc-900 -skew-y-2 origin-top-left z-10 -mt-8"></div>
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-zinc-900 skew-y-2 origin-bottom-left z-10 -mb-8"></div>
+        <div className="absolute top-0 left-0 right-0 h-16 bg-background -skew-y-2 origin-top-left z-10 -mt-8"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-background skew-y-2 origin-bottom-left z-10 -mb-8"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
           <div className="text-center mb-16">
@@ -108,7 +108,7 @@ export default function Home() {
       </section>
 
       {/* Sponsors Carousel */}
-      <section className="py-24 bg-zinc-900 border-t border-white/5">
+      <section className="py-24 bg-background border-t border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-center text-gray-500 uppercase tracking-widest text-sm font-bold mb-10">Trusted By Our Partners</p>
 
