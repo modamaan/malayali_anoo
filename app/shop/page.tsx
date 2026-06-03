@@ -10,7 +10,7 @@ export default function ShopPage() {
           <span className="text-primary-500">SHOP</span>
         </h1>
         <p className="text-xl text-gray-400 max-w-2xl mx-auto font-light">
-          Official Malayali Aano merchandise. Wear the culture.
+          Official Malayali AAANOO merchandise. Wear the culture.
         </p>
       </section>
 
