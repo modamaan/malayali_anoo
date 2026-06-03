@@ -11,19 +11,22 @@ export default function AboutPage() {
           <span className="text-primary-500">US</span>
         </h1>
         <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto font-light leading-relaxed">
-          We are <span className="text-white font-bold">Malayali AAANOO</span>. Bringing the essence of Kerala to the UK 🇬🇧 through engaging podcasts, talk shows, and community events.
+          We are <span className="text-white font-bold relative inline-block">
+            Malayali AAANOO
+            <span className="absolute -bottom-1.5 left-0 w-full h-1 bg-gradient-to-r from-primary-500 to-primary-600 rounded-full opacity-80"></span>
+          </span>. Bringing the essence of Kerala to the UK 🇬🇧 through engaging podcasts, talk shows, and community events.
         </p>
       </section>
 
       {/* Story Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div className="relative aspect-[4/3] rounded-2xl overflow-hidden glass p-2">
+          <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border-2 md:border-4 border-gray-700 shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:border-gray-500 hover:shadow-[0_0_30px_rgba(255,255,255,0.05)] transition-all duration-500 group">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
-              src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop" 
+              src="/about_us_image_1.png" 
               alt="Our Team"
-              className="w-full h-full object-cover rounded-xl"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
           </div>
           <div>

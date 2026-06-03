@@ -25,9 +25,9 @@ export const MOCK_BANNERS = [
   }
 ];
 
-export const MOCK_VIDEOS = [
+export const MOCK_SADANAM_KAYYILUNDO = [
   {
-    id: "v1",
+    id: "sk1",
     title: "Sadanam Kayyilundo?? | London East Ham",
     description: "Public Interaction in London East Ham",
     youtubeId: "z8uQfvCNXS8",
@@ -36,23 +36,143 @@ export const MOCK_VIDEOS = [
     date: "2024-05-10",
   },
   {
-    id: "v2",
+    id: "sk2",
     title: "Saadhanam Kayyil undo | @ Leicester",
     description: "Malayali Aaanoo public interaction at Leicester.",
     youtubeId: "fOpq5bq00KM",
     thumbnailUrl: "https://img.youtube.com/vi/fOpq5bq00KM/hqdefault.jpg",
     link: "https://youtu.be/fOpq5bq00KM?si=XWJmiVk8Z98EtcNn",
     date: "2024-04-22",
+  }
+];
+
+export const MOCK_GAMESHOWS = [
+  {
+    id: "gs1",
+    title: "MALAYALI AAANOO GAME SHOW | S1E1",
+    description: "The premiere episode of our thrilling new game show!",
+    youtubeId: "DOl0Fg9owDs",
+    thumbnailUrl: "https://img.youtube.com/vi/DOl0Fg9owDs/hqdefault.jpg",
+    link: "https://youtu.be/DOl0Fg9owDs?si=9r7d31Fg_1PsOiA8",
+    date: "2024-02-05",
   },
   {
-    id: "v3",
+    id: "gs2",
+    title: "MALAYALI AAANOO GAME SHOW | S1E2",
+    description: "Game Show Season 1 Episode 2 — the fun continues!",
+    youtubeId: "-k1rcCfsrfs",
+    thumbnailUrl: "https://img.youtube.com/vi/-k1rcCfsrfs/hqdefault.jpg",
+    link: "https://youtu.be/-k1rcCfsrfs?si=Uo-AT1bA9y2LzKW_",
+    date: "2024-03-01",
+  }
+];
+
+export const MOCK_UK_UPDATES = [
+  {
+    id: "uk1",
+    title: "Latest UK updates | malayaliaaanoo",
+    description: "Stay informed with the latest updates from the UK.",
+    youtubeId: "4i7u9FHkjhU",
+    thumbnailUrl: "https://img.youtube.com/vi/4i7u9FHkjhU/hqdefault.jpg",
+    link: "https://youtu.be/4i7u9FHkjhU?si=1iljb1q-k5g1sg3V",
+    date: "2024-05-15",
+  },
+  {
+    id: "uk2",
+    title: "Top Updates In UK | malayaliaaanoo",
+    description: "Top news and updates you need to know.",
+    youtubeId: "V6uQyLKCUEY",
+    thumbnailUrl: "https://img.youtube.com/vi/V6uQyLKCUEY/hqdefault.jpg",
+    link: "https://youtu.be/V6uQyLKCUEY?si=7c3vI0dB4mksbQ4-",
+    date: "2024-04-20",
+  },
+  {
+    id: "uk3",
+    title: "UK Updates: Everything you need to know 🇬🇧 | malayaliaaanoo",
+    description: "Comprehensive coverage of UK updates.",
+    youtubeId: "T8Uac9vIAxU",
+    thumbnailUrl: "https://img.youtube.com/vi/T8Uac9vIAxU/hqdefault.jpg",
+    link: "https://youtu.be/T8Uac9vIAxU?si=8V4A6QglCSGgVP0g",
+    date: "2024-03-10",
+  },
+  {
+    id: "uk4",
+    title: "UK Updates: Everything you need to know 🇬🇧 | malayaliaaanoo",
+    description: "More essential UK updates and news.",
+    youtubeId: "stOPgpVm8Uo",
+    thumbnailUrl: "https://img.youtube.com/vi/stOPgpVm8Uo/hqdefault.jpg",
+    link: "https://youtu.be/stOPgpVm8Uo?si=KJB7ODNPATHlVliF",
+    date: "2024-02-25",
+  },
+  {
+    id: "uk5",
+    title: "Major Shifts for UK Renters 🏠 & Local News Roundup",
+    description: "Important changes for renters and local news.",
+    youtubeId: "8WG2V5S7JvM",
+    thumbnailUrl: "https://img.youtube.com/vi/8WG2V5S7JvM/hqdefault.jpg",
+    link: "https://youtu.be/8WG2V5S7JvM?si=0brTtRgZ-S0GNlWx",
+    date: "2024-01-20",
+  },
+  {
+    id: "uk6",
+    title: "Recent Top Updates in UK",
+    description: "The most recent top updates happening in the UK.",
+    youtubeId: "CwKVPQfxICM",
+    thumbnailUrl: "https://img.youtube.com/vi/CwKVPQfxICM/hqdefault.jpg",
+    link: "https://youtu.be/CwKVPQfxICM?si=2xWCbUYgX0YuV5Ys",
+    date: "2023-12-15",
+  }
+];
+
+export const MOCK_PODCASTS = [
+  {
+    id: "pc1",
     title: "Exclusive interview with Subash Manuel",
     description: "Exclusive interview with Subash Manuel, Patriot Movie Co-Producer.",
     youtubeId: "1Q-jyu3aaJc",
     thumbnailUrl: "https://img.youtube.com/vi/1Q-jyu3aaJc/hqdefault.jpg",
     link: "https://youtu.be/1Q-jyu3aaJc?si=g_zm8F4rEzI6is1b",
     date: "2024-03-10",
+  }
+];
+
+export const MOCK_OTHERS = [
+  {
+    id: "ot1",
+    title: "60000 Rupees Winner from Wayanad",
+    description: "Meet the lucky winner from Wayanad who took home 60,000 Rupees!",
+    youtubeId: "VSD-2yT_4Hk",
+    thumbnailUrl: "https://img.youtube.com/vi/VSD-2yT_4Hk/hqdefault.jpg",
+    link: "https://youtu.be/VSD-2yT_4Hk?si=8WEv1_NulcNnjH8i",
+    date: "2024-06-01",
   },
+  {
+    id: "ot2",
+    title: "£500 Logo Winner Reveal | malayaliaaanoo",
+    description: "The grand reveal of our £500 logo competition winner.",
+    youtubeId: "kYuHT4eY_9g",
+    thumbnailUrl: "https://img.youtube.com/vi/kYuHT4eY_9g/hqdefault.jpg",
+    link: "https://youtu.be/kYuHT4eY_9g?si=0zQi7r1YGkmbl1vn",
+    date: "2024-05-20",
+  },
+  {
+    id: "ot3",
+    title: "Winning Logo",
+    description: "A closer look at the winning logo design.",
+    youtubeId: "VkDbftRDYzQ",
+    thumbnailUrl: "https://img.youtube.com/vi/VkDbftRDYzQ/hqdefault.jpg",
+    link: "https://youtu.be/VkDbftRDYzQ?si=S6PF1yXquJhCMTW9",
+    date: "2024-05-21",
+  },
+  {
+    id: "ot4",
+    title: "Give Away 500£ (60000Rs)",
+    description: "Huge giveaway announcement! £500 up for grabs.",
+    youtubeId: "uXDV04j0p9c",
+    thumbnailUrl: "https://img.youtube.com/vi/uXDV04j0p9c/hqdefault.jpg",
+    link: "https://youtu.be/uXDV04j0p9c?si=PlLIrekjAtlH0mDr",
+    date: "2024-04-15",
+  }
 ];
 
 export const MOCK_EVENTS = [
@@ -77,7 +197,7 @@ export const MOCK_EVENTS = [
   {
     id: "e2",
     title: "Malayaliaaanoo x Naattil Evidaa",
-    date: "2024-07-17",
+    date: "2026-07-17",
     time: "Fri 4:00pm - Sun 9:00am",
     location: "YHA National Forest, Moira",
     description: "Our massive collaboration event. Join us for an unforgettable weekend getaway.",
@@ -147,7 +267,8 @@ export const MOCK_YOUTUBE_VIDEOS = [
     title: "Sadanam Kayyilundo?? | London East Ham",
     thumbnailUrl: "https://img.youtube.com/vi/z8uQfvCNXS8/hqdefault.jpg",
     link: "https://youtu.be/z8uQfvCNXS8?si=o9AIS8-utW7IBB5D",
-    date: "2024-05-10"
+    date: "2024-05-10",
+    trending: true,
   },
   {
     id: "yt2",
@@ -161,7 +282,8 @@ export const MOCK_YOUTUBE_VIDEOS = [
     title: "When Sunil OG meets Malayali Aaanoo!",
     thumbnailUrl: "https://img.youtube.com/vi/VdojyLT-xZs/hqdefault.jpg",
     link: "https://youtube.com/shorts/VdojyLT-xZs?si=k2SWohV4d1Dks0ej",
-    date: "2024-03-15"
+    date: "2024-03-15",
+    trending: true,
   },
   {
     id: "yt4",
@@ -176,6 +298,50 @@ export const MOCK_YOUTUBE_VIDEOS = [
     thumbnailUrl: "https://img.youtube.com/vi/8WG2V5S7JvM/hqdefault.jpg",
     link: "https://youtu.be/8WG2V5S7JvM?si=vyAmBF2dZY-2f33r",
     date: "2024-01-20"
+  },
+  {
+    id: "yt6",
+    title: "UK Event Updates | malayaliaaanoo",
+    thumbnailUrl: "https://img.youtube.com/vi/TfWueK4HHA8/hqdefault.jpg",
+    link: "https://youtube.com/shorts/TfWueK4HHA8?si=YyawpFxyTkwt08RR",
+    date: "2024-06-03",
+    trending: true,
+  },
+  {
+    id: "yt7",
+    title: "Malayali Aaanoo Gameshow | Episode 2 | highlights",
+    thumbnailUrl: "https://img.youtube.com/vi/k8a_lJ6Th-I/hqdefault.jpg",
+    link: "https://youtube.com/shorts/k8a_lJ6Th-I?si=wX-LE0RBtlZ-jnCm",
+    date: "2024-06-02",
+  },
+  {
+    id: "yt8",
+    title: "What are they scanning at ?",
+    thumbnailUrl: "https://img.youtube.com/vi/p-QltcMxnsA/hqdefault.jpg",
+    link: "https://youtube.com/shorts/p-QltcMxnsA?si=yROlbmS4ufMI4kiL",
+    date: "2024-06-01",
+  },
+  {
+    id: "yt9",
+    title: "Comment the answer | malayaliaaanoo | East Ham",
+    thumbnailUrl: "https://img.youtube.com/vi/mcREsf-oZWw/hqdefault.jpg",
+    link: "https://youtube.com/shorts/mcREsf-oZWw?si=nOQ5QDdimy3JcPkp",
+    date: "2024-05-28",
+    trending: true,
+  },
+  {
+    id: "yt10",
+    title: "Sadhanam kayyil undo | Malayali aaanoo | East Ham Episode",
+    thumbnailUrl: "https://img.youtube.com/vi/2jZX5S1Vr5k/hqdefault.jpg",
+    link: "https://youtube.com/shorts/2jZX5S1Vr5k?si=MApFf5xtw7OxUGka",
+    date: "2024-05-25",
+  },
+  {
+    id: "yt11",
+    title: "Parking Fine increasing to £160 |malayaliaaanoo",
+    thumbnailUrl: "https://img.youtube.com/vi/FVBOEiAtryI/hqdefault.jpg",
+    link: "https://youtube.com/shorts/FVBOEiAtryI?si=67d9AuQO06XuZQMG",
+    date: "2024-05-20",
   }
 ];
 
