@@ -1,3 +1,5 @@
+import type { Video, Event, Sponsor, TrustStat, MerchItem } from "./types";
+
 export const MOCK_BANNERS = [
   {
     id: "b1",
@@ -175,7 +177,7 @@ export const MOCK_OTHERS = [
   }
 ];
 
-export const MOCK_EVENTS = [
+export const MOCK_EVENTS: Event[] = [
   {
     id: "e1",
     title: "Biriyani Challenge",
@@ -237,28 +239,46 @@ export const MOCK_MERCH = [
 export const MOCK_SPONSORS = [
   {
     id: "s1",
-    name: "Sponsor One",
-    logoUrl: "https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?q=80&w=400&auto=format&fit=crop",
-    website: "#",
+    name: "Amazon",
+    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg",
+    website: "https://amazon.com",
   },
   {
     id: "s2",
-    name: "Sponsor Two",
-    logoUrl: "https://images.unsplash.com/photo-1614680376408-142c2be9580b?q=80&w=400&auto=format&fit=crop",
-    website: "#",
+    name: "Nvidia",
+    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/2/21/Nvidia_logo.svg",
+    website: "https://nvidia.com",
   },
   {
     id: "s3",
-    name: "Sponsor Three",
-    logoUrl: "https://images.unsplash.com/photo-1614680376593-902f74a0bb7b?q=80&w=400&auto=format&fit=crop",
-    website: "#",
+    name: "Ford",
+    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/a/a0/Ford_Motor_Company_Logo.svg",
+    website: "https://ford.com",
   },
   {
     id: "s4",
-    name: "Sponsor Four",
-    logoUrl: "https://images.unsplash.com/photo-1614680376739-414fa991752b?q=80&w=400&auto=format&fit=crop",
-    website: "#",
+    name: "Coinbase",
+    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/1/15/Coinbase_nav_logo.svg",
+    website: "https://coinbase.com",
   },
+  {
+    id: "s5",
+    name: "Google",
+    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg",
+    website: "https://google.com",
+  },
+  {
+    id: "s6",
+    name: "Shopify",
+    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/0/0e/Shopify_logo_2018.svg",
+    website: "https://shopify.com",
+  },
+];
+
+export const TRUST_STATS: TrustStat[] = [
+  { value: "50+", label: "Strategic Partnerships" },
+  { value: "100K+", label: "Community Members" },
+  { value: "10M+", label: "Monthly Reach" },
 ];
 
 export const MOCK_YOUTUBE_VIDEOS = [

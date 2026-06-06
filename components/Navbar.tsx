@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import TiltLogo from "./TiltLogo";
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -24,17 +25,9 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <div className="flex-shrink-0 flex items-center">
-            <Link href="/" className="flex items-center group">
-              <Image
-                src="/logo_white-1.png"
-                alt="Malayali Aano Logo"
-                width={280}
-                height={80}
-                className="w-48 sm:w-56 md:w-64 h-auto object-contain group-hover:scale-105 transition-transform duration-300"
-                priority
-                loading="eager"
-              />
+          <div className="flex-shrink-0 flex items-center -ml-2">
+            <Link href="/" className="flex items-center" aria-label="Home">
+              <TiltLogo />
             </Link>
           </div>
 
@@ -47,14 +40,12 @@ export default function Navbar() {
                   <Link
                     key={link.name}
                     href={link.href}
-                    className={`relative px-2 py-2 text-sm font-medium uppercase tracking-widest transition-colors group ${
-                      isActive ? "text-white" : "text-gray-300 hover:text-white"
-                    }`}
+                    className={`relative px-2 py-2 text-sm font-medium uppercase tracking-widest transition-colors group ${isActive ? "text-white" : "text-gray-300 hover:text-white"
+                      }`}
                   >
                     {link.name}
-                    <span className={`absolute left-0 -bottom-1 h-1 bg-primary-500 transition-all duration-300 ${
-                      isActive ? "w-full" : "w-0 group-hover:w-full"
-                    }`}></span>
+                    <span className={`absolute left-0 -bottom-1 h-1 bg-primary-500 transition-all duration-300 ${isActive ? "w-full" : "w-0 group-hover:w-full"
+                      }`}></span>
                   </Link>
                 );
               })}
@@ -63,7 +54,7 @@ export default function Navbar() {
 
           {/* Mobile menu button */}
           <div className="md:hidden">
-            <button 
+            <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="text-gray-300 hover:text-white p-2 focus:outline-none"
             >
@@ -92,15 +83,13 @@ export default function Navbar() {
                   key={link.name}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block px-4 py-3 text-base font-medium uppercase tracking-widest text-center transition-colors group ${
-                    isActive ? "text-white" : "text-gray-300 hover:text-white"
-                  }`}
+                  className={`block px-4 py-3 text-base font-medium uppercase tracking-widest text-center transition-colors group ${isActive ? "text-white" : "text-gray-300 hover:text-white"
+                    }`}
                 >
                   <span className="relative inline-block pb-1">
                     {link.name}
-                    <span className={`absolute left-0 bottom-0 h-1 bg-primary-500 transition-all duration-300 ${
-                      isActive ? "w-full" : "w-0 group-hover:w-full"
-                    }`}></span>
+                    <span className={`absolute left-0 bottom-0 h-1 bg-primary-500 transition-all duration-300 ${isActive ? "w-full" : "w-0 group-hover:w-full"
+                      }`}></span>
                   </span>
                 </Link>
               );

@@ -14,33 +14,33 @@ export default function SponsorsPage() {
         </p>
       </section>
 
-      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 md:gap-12 items-center justify-items-center">
+      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full py-10">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-12 gap-y-16 items-center justify-items-center">
           {MOCK_SPONSORS.map((sponsor) => (
-            <a 
-              key={sponsor.id} 
-              href={sponsor.website} 
-              target="_blank" 
+            <a
+              key={sponsor.id}
+              href={sponsor.website}
+              target="_blank"
               rel="noopener noreferrer"
-              className="group glass p-8 rounded-2xl flex items-center justify-center w-full aspect-[4/3] hover:bg-white/5 hover:border-primary-500/30 transition-all duration-300"
+              className="group flex items-center justify-center w-full h-24 transition-opacity duration-300 opacity-60 hover:opacity-100"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
-                src={sponsor.logoUrl} 
-                alt={sponsor.name} 
-                className="w-full h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500 opacity-60 group-hover:opacity-100 group-hover:scale-110"
+              <img
+                src={sponsor.logoUrl}
+                alt={sponsor.name}
+                className="max-w-[140px] md:max-w-[180px] max-h-[60px] object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300"
               />
             </a>
           ))}
         </div>
       </section>
-      
+
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full text-center mt-12">
-        <h2 className="text-3xl md:text-4xl font-heading font-black text-white mb-6">Become a Partner</h2>
+        <h2 className="text-3xl md:text-4xl font-heading font-black text-white mb-6">For Business Inquiries & Collabs</h2>
         <p className="text-gray-400 mb-10 text-lg">
-          Join us in our mission to connect the diaspora through premium entertainment, podcasts, and community events.
+          Interested in working together? Reach out to us for sponsorships, brand partnerships, and exciting collaborations.
         </p>
-        <Link href="/contact" className="inline-block px-10 py-4 bg-zinc-950 border border-white/5 text-white font-bold rounded-full hover:bg-white hover:text-black hover:border-white transition-colors text-lg shadow-xl">
+        <Link href="/contact" className="inline-block px-10 py-4 bg-white text-black font-bold rounded-full hover:bg-gray-200 transition-colors text-lg">
           Get In Touch
         </Link>
       </section>
