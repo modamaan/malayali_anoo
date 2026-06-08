@@ -1,4 +1,19 @@
+'use client';
+
+import { useState } from 'react';
+
 export default function ContactPage() {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const body = `Name: ${firstName} ${lastName}\nEmail: ${email}\n\nMessage:\n${message}`;
+    window.location.href = `mailto:malayaliaaanoo@gmail.com?subject=${encodeURIComponent(subject || 'New Contact Form Submission')}&body=${encodeURIComponent(body)}`;
+  };
   return (
     <div className="flex flex-col min-h-screen pt-12 pb-24">
       <section className="relative py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full text-center">
@@ -29,7 +44,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h4 className="text-white font-bold mb-1">Email Us</h4>
-                    <p className="text-gray-400">hello@malayaliaano.com</p>
+                    <p className="text-gray-400">malayaliaaanoo@gmail.com</p>
                   </div>
                 </div>
                 
@@ -39,7 +54,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h4 className="text-white font-bold mb-1">Call Us</h4>
-                    <p className="text-gray-400">+91 98765 43210</p>
+                    <p className="text-gray-400">+44 7344 909757</p>
                   </div>
                 </div>
                 
@@ -74,22 +89,28 @@ export default function ContactPage() {
           {/* Contact Form */}
           <div className="glass p-8 md:p-10 rounded-3xl">
             <h2 className="text-2xl font-bold text-white mb-8">Send us a message</h2>
-            <form className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-2">First Name</label>
                   <input 
                     type="text" 
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
                     className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary-500 transition-colors"
                     placeholder="John"
+                    required
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-2">Last Name</label>
                   <input 
                     type="text" 
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
                     className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary-500 transition-colors"
                     placeholder="Doe"
+                    required
                   />
                 </div>
               </div>
@@ -98,8 +119,11 @@ export default function ContactPage() {
                 <label className="block text-sm font-medium text-gray-400 mb-2">Email Address</label>
                 <input 
                   type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary-500 transition-colors"
                   placeholder="john@example.com"
+                  required
                 />
               </div>
               
@@ -107,8 +131,11 @@ export default function ContactPage() {
                 <label className="block text-sm font-medium text-gray-400 mb-2">Subject</label>
                 <input 
                   type="text" 
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
                   className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary-500 transition-colors"
                   placeholder="How can we help?"
+                  required
                 />
               </div>
               
@@ -116,13 +143,16 @@ export default function ContactPage() {
                 <label className="block text-sm font-medium text-gray-400 mb-2">Message</label>
                 <textarea 
                   rows={5}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                   className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary-500 transition-colors resize-none"
                   placeholder="Tell us about your project..."
+                  required
                 ></textarea>
               </div>
               
               <button 
-                type="button" 
+                type="submit" 
                 className="w-full py-4 bg-primary-600 hover:bg-primary-500 text-white font-bold rounded-xl transition-colors shadow-[0_0_20px_rgba(210,27,46,0.4)]"
               >
                 Send Message
