@@ -3,33 +3,44 @@ import IntroSplashScreen from "@/components/IntroSplashScreen";
 import VideoRow from "@/components/VideoRow";
 import TrustSection from "@/components/TrustSection";
 import Link from "next/link";
-import {
-  MOCK_GAMESHOWS,
-  MOCK_SADANAM_KAYYILUNDO,
-  MOCK_UK_UPDATES,
-  MOCK_PODCASTS,
-  MOCK_OTHERS,
-  MOCK_EVENTS,
-} from "@/lib/data";
+import { createClient } from "@/lib/supabase/server";
 
-// Video rows config — add/remove/reorder here without touching JSX
-const VIDEO_ROWS = [
-  { title: "Gameshows", subtitle: "Watch our thrilling competition series", videos: MOCK_GAMESHOWS, linkHref: "/portfolio" },
-  { title: "Sadanam Kayyilundo??", subtitle: "Hilarious public interactions", videos: MOCK_SADANAM_KAYYILUNDO, linkHref: "/portfolio" },
-  { title: "Latest UK Updates", subtitle: "Essential news and updates you can't miss", videos: MOCK_UK_UPDATES, linkHref: "/portfolio" },
-  { title: "Podcasts & Interviews", subtitle: "Deep conversations with fascinating people", videos: MOCK_PODCASTS, linkHref: "/portfolio" },
-  { title: "Others", subtitle: "More exciting content and giveaways", videos: MOCK_OTHERS, linkHref: "/portfolio" },
-] as const;
+export default async function Home() {
+  const supabase = await createClient();
+  
+  // Fetch categories, videos, and banners
+  const [categoriesResponse, videosResponse, bannersResponse] = await Promise.all([
+    supabase.from("video_categories").select("*").order("sort_order", { ascending: true }),
+    supabase.from("portfolio_videos").select("*").order("date", { ascending: false }),
+    supabase.from("hero_banners").select("*").order("sort_order", { ascending: true })
+  ]);
+    
+  const categories = categoriesResponse.data || [];
+  const videos = videosResponse.data || [];
+  const banners = bannersResponse.data || [];
+  
+  // Group videos by category
+  const videoRows = categories.map(cat => ({
+    title: cat.title,
+    subtitle: cat.subtitle,
+    videos: videos.filter(v => (v.category || 'Others') === cat.title),
+    linkHref: "/portfolio"
+  }));
 
-export default function Home() {
+  const { data: events } = await supabase
+    .from("events")
+    .select("*")
+    .order("date", { ascending: true })
+    .limit(3);
+
   return (
     <div className="flex flex-col min-h-screen">
       <IntroSplashScreen />
-      <HeroBanner />
+      <HeroBanner banners={banners} />
 
       {/* ── Video content rows ── */}
       <div className="py-12">
-        {VIDEO_ROWS.map((row) => (
+        {videoRows.map((row) => (
           <VideoRow key={row.title} {...row} />
         ))}
       </div>
@@ -47,7 +58,7 @@ export default function Home() {
           </div>
 
           <div className="space-y-6">
-            {MOCK_EVENTS.map((event) => (
+            {(events || []).map((event) => (
               <div
                 key={event.id}
                 className="glass p-6 md:p-8 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6 hover:bg-white/10 transition-colors"
@@ -83,16 +94,18 @@ export default function Home() {
                 </div>
 
                 {/* CTA */}
-                <div className="md:w-1/4 flex justify-end w-full">
-                  <Link
-                    href={event.ticketLink ?? `/events/${event.id}`}
-                    target={event.ticketLink ? "_blank" : "_self"}
-                    rel={event.ticketLink ? "noopener noreferrer" : ""}
-                    className="px-6 py-3 w-full text-center bg-zinc-950 hover:bg-white hover:text-black text-white font-bold rounded-full transition-colors"
-                  >
-                    {event.ticketLink ? "Register Now" : "Details"}
-                  </Link>
-                </div>
+                {event.ticket_link && (
+                  <div className="md:w-1/4 flex justify-end w-full">
+                    <Link
+                      href={event.ticket_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-6 py-3 w-full text-center bg-zinc-950 hover:bg-white hover:text-black text-white font-bold rounded-full transition-colors"
+                    >
+                      Register Now
+                    </Link>
+                  </div>
+                )}
               </div>
             ))}
           </div>

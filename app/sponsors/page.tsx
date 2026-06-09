@@ -1,7 +1,12 @@
-import { MOCK_SPONSORS } from "@/lib/data";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
-export default function SponsorsPage() {
+export default async function SponsorsPage() {
+  const supabase = await createClient();
+  const { data: sponsors } = await supabase
+    .from("sponsors")
+    .select("*")
+    .order("created_at", { ascending: true });
   return (
     <div className="flex flex-col min-h-screen pt-12 pb-24">
       <section className="relative py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full text-center">
@@ -15,20 +20,20 @@ export default function SponsorsPage() {
       </section>
 
       <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full py-10">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-12 gap-y-16 items-center justify-items-center">
-          {MOCK_SPONSORS.map((sponsor) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          {(sponsors || []).map((sponsor) => (
             <a
               key={sponsor.id}
-              href={sponsor.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center justify-center w-full h-24 transition-opacity duration-300 opacity-60 hover:opacity-100"
+              href={sponsor.website || undefined}
+              target={sponsor.website ? "_blank" : undefined}
+              rel={sponsor.website ? "noopener noreferrer" : undefined}
+              className="group flex items-center justify-center w-full aspect-[2/1] bg-[#1a1a1d] border border-white/10 rounded-2xl hover:border-primary-500/50 hover:bg-white/5 transition-all duration-300 p-8 hover:shadow-[0_8px_30px_rgba(210,27,46,0.1)]"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={sponsor.logoUrl}
+                src={sponsor.logo_url}
                 alt={sponsor.name}
-                className="max-w-[140px] md:max-w-[180px] max-h-[60px] object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                className="max-w-[140px] md:max-w-[180px] max-h-[80px] object-contain transition-all duration-300 group-hover:scale-105"
               />
             </a>
           ))}

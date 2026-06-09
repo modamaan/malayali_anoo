@@ -50,6 +50,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       // Authorized!
       setIsAuthorized(true)
+
+      // Clean up any pending invitations for this email since they are now an active admin
+      await supabase.from('admin_invitations').delete().eq('email', session.user.email)
     }
 
     checkAuth()
@@ -81,7 +84,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                Logout
              </button>
            </div>
-           <div className="flex space-x-8">
+           <div className="flex space-x-8 overflow-x-auto whitespace-nowrap hide-scrollbar">
              <Link 
                href="/admin/portfolio" 
                className={`pb-4 border-b-2 font-medium transition-colors ${pathname === '/admin/portfolio' ? 'border-primary-500 text-white' : 'border-transparent text-gray-400 hover:text-white'}`}
@@ -89,6 +92,30 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                Portfolio Videos
              </Link>
              <Link 
+               href="/admin/events" 
+               className={`pb-4 border-b-2 font-medium transition-colors ${pathname === '/admin/events' ? 'border-primary-500 text-white' : 'border-transparent text-gray-400 hover:text-white'}`}
+             >
+               Manage Events
+             </Link>
+             <Link 
+               href="/admin/banners" 
+               className={`pb-4 border-b-2 font-medium transition-colors ${pathname === '/admin/banners' ? 'border-primary-500 text-white' : 'border-transparent text-gray-400 hover:text-white'}`}
+             >
+               Manage Banners
+             </Link>
+             <Link 
+               href="/admin/categories" 
+               className={`pb-4 border-b-2 font-medium transition-colors ${pathname === '/admin/categories' ? 'border-primary-500 text-white' : 'border-transparent text-gray-400 hover:text-white'}`}
+             >
+               Manage Categories
+             </Link>
+             <Link 
+               href="/admin/sponsors" 
+               className={`pb-4 border-b-2 font-medium transition-colors ${pathname === '/admin/sponsors' ? 'border-primary-500 text-white' : 'border-transparent text-gray-400 hover:text-white'}`}
+             >
+               Manage Sponsors
+             </Link>
+              <Link 
                href="/admin/users" 
                className={`pb-4 border-b-2 font-medium transition-colors ${pathname === '/admin/users' ? 'border-primary-500 text-white' : 'border-transparent text-gray-400 hover:text-white'}`}
              >

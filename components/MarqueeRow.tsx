@@ -5,9 +5,9 @@ function LogoItem({ sponsor, rowKey }: { sponsor: Sponsor; rowKey: string }) {
   return (
     <a
       key={rowKey}
-      href={sponsor.website}
-      target="_blank"
-      rel="noopener noreferrer"
+      href={sponsor.website || undefined}
+      target={sponsor.website ? "_blank" : undefined}
+      rel={sponsor.website ? "noopener noreferrer" : undefined}
       className="trust-logo-item shrink-0 group/logo relative flex items-center justify-center px-3"
     >
       {/* Red radial glow on hover */}
@@ -20,7 +20,8 @@ function LogoItem({ sponsor, rowKey }: { sponsor: Sponsor; rowKey: string }) {
       />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={sponsor.logoUrl}
+        /* @ts-ignore */
+        src={sponsor.logo_url || sponsor.logoUrl}
         alt={sponsor.name}
         className="h-6 md:h-7 w-auto object-contain select-none pointer-events-none opacity-75 group-hover/logo:opacity-100 group-hover/logo:scale-110 transition-all duration-300"
       />

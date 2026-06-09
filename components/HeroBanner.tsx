@@ -3,9 +3,26 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { MOCK_BANNERS } from "@/lib/data";
 
-export default function HeroBanner() {
+type Banner = {
+  id: string;
+  title: string;
+  subtitle: string;
+  link: string;
+  youtube_id?: string;
+}
+
+// Extract YouTube video ID from various URL formats
+// Handles: youtu.be/ID, youtube.com/watch?v=ID, youtube.com/embed/ID, youtube.com/shorts/ID
+function extractYoutubeId(url: string): string | null {
+  if (!url) return null;
+  const match = url.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|v\/))([a-zA-Z0-9_-]{11})/
+  );
+  return match ? match[1] : null;
+}
+
+export default function HeroBanner({ banners }: { banners: Banner[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true); // MUST default to true for browsers to allow autoplay on page load
 
@@ -13,9 +30,9 @@ export default function HeroBanner() {
     let timeouts: NodeJS.Timeout[] = [];
 
     const syncVideoState = () => {
-      MOCK_BANNERS.forEach((banner, index) => {
-        // @ts-ignore
-        if (banner.youtubeId) {
+      banners.forEach((banner, index) => {
+        const youtubeId = banner.youtube_id || extractYoutubeId(banner.link || '');
+        if (youtubeId) {
           const iframe = document.getElementById(`yt-${banner.id}`) as HTMLIFrameElement;
           if (iframe && iframe.contentWindow) {
             if (index !== currentIndex) {
@@ -44,19 +61,20 @@ export default function HeroBanner() {
   }, [currentIndex, isMuted]);
 
   const nextBanner = () => {
-    setCurrentIndex((prev) => (prev + 1) % MOCK_BANNERS.length);
+    setCurrentIndex((prev) => (prev + 1) % (banners.length || 1));
   };
 
   const prevBanner = () => {
-    setCurrentIndex((prev) => (prev - 1 + MOCK_BANNERS.length) % MOCK_BANNERS.length);
+    setCurrentIndex((prev) => (prev - 1 + (banners.length || 1)) % (banners.length || 1));
   };
+
+  if (!banners || banners.length === 0) return null;
 
   return (
     <div className="relative w-full h-[70vh] md:h-[85vh] overflow-hidden">
-      {MOCK_BANNERS.map((banner, index) => {
-        // We use @ts-ignore for youtubeId since it's only on some banners
-        /* @ts-ignore */
-        const hasVideo = !!banner.youtubeId;
+      {banners.map((banner, index) => {
+        const youtubeId = banner.youtube_id || extractYoutubeId(banner.link || '');
+        const hasVideo = !!youtubeId;
         const isActive = index === currentIndex;
 
         return (
@@ -73,20 +91,14 @@ export default function HeroBanner() {
                   {isActive && (
                     <iframe
                       id={`yt-${banner.id}`}
-                      // Add mute=1 to ensure autoplay works initially, the useEffect will unmute it immediately if isMuted is false
-                      src={`https://www.youtube.com/embed/${banner.youtubeId}?enablejsapi=1&autoplay=1&mute=1&loop=1&playlist=${banner.youtubeId}&controls=0&showinfo=0&rel=0&modestbranding=1`}
+                      src={`https://www.youtube.com/embed/${youtubeId}?enablejsapi=1&autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&showinfo=0&rel=0&modestbranding=1`}
                       className="absolute top-1/2 left-1/2 w-[100vw] h-[56.25vw] min-h-[100vh] min-w-[177.77vh] -translate-x-1/2 -translate-y-1/2"
                       allow="autoplay; encrypted-media"
                     ></iframe>
                   )}
                 </div>
               ) : (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={banner.imageUrl}
-                  alt={banner.title}
-                  className="object-cover w-full h-full"
-                />
+                <div className="absolute inset-0 bg-zinc-950" />
               )}
               {/* Gradient Overlay to make text readable but keep video visible */}
               <div className={`absolute inset-0 bg-gradient-to-r ${hasVideo ? 'from-black/50 via-transparent to-transparent' : 'from-black/90 via-black/50 to-transparent'}`}></div>
@@ -158,7 +170,7 @@ export default function HeroBanner() {
 
       {/* Dots */}
       <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-30 flex space-x-2 md:space-x-3">
-        {MOCK_BANNERS.map((_, index) => (
+        {banners.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentIndex(index)}

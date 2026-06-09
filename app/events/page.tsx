@@ -1,17 +1,42 @@
 "use client";
 
-import { useState } from "react";
-import { MOCK_EVENTS } from "@/lib/data";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import ImageCarousel from "@/components/ImageCarousel";
+import { createClient } from "@/lib/supabase/client";
 
 export default function EventsPage() {
   const [activeFilter, setActiveFilter] = useState("Upcoming");
+  const [events, setEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const filters = ["Upcoming", "Past"];
+  const supabase = createClient();
 
-  const now = new Date();
-  
-  const filteredEvents = MOCK_EVENTS.filter(event => {
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("events")
+        .select("*")
+        .order("date", { ascending: true });
+
+      if (data) {
+        const mappedData = data.map(evt => ({
+          ...evt,
+          imageUrl: evt.image_url,
+          ticketLink: evt.ticket_link
+        }));
+        setEvents(mappedData);
+      } else if (error) {
+        console.error("Error fetching events:", error);
+      }
+      setLoading(false);
+    };
+
+    fetchEvents();
+  }, [supabase]);
+
+  const filteredEvents = events.filter(event => {
     // Set time to 00:00:00 to only compare dates
     const eventDate = new Date(event.date);
     eventDate.setHours(0,0,0,0);
@@ -24,6 +49,14 @@ export default function EventsPage() {
       return eventDate < today;
     }
   });
+
+  if (loading) {
+    return (
+      <div className="flex flex-col min-h-screen pt-20 items-center justify-center">
+        <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen pt-4 pb-24">
@@ -101,18 +134,18 @@ export default function EventsPage() {
                 <h3 className="text-3xl font-bold text-white mb-4">{event.title}</h3>
                 <p className="text-gray-300 mb-8 flex-grow">{event.description}</p>
 
-                <Link
-                  /* @ts-ignore */
-                  href={event.ticketLink || `/events/${event.id}`}
-                  /* @ts-ignore */
-                  target={event.ticketLink ? "_blank" : "_self"}
-                  /* @ts-ignore */
-                  rel={event.ticketLink ? "noopener noreferrer" : ""}
-                  className="block w-full py-4 text-center bg-white/10 hover:bg-primary-600 text-white font-bold rounded-xl transition-colors"
-                >
-                  {/* @ts-ignore */}
-                  {event.ticketLink ? "Get Tickets / Register" : "Details"}
-                </Link>
+                {/* @ts-ignore */}
+                {event.ticket_link && (
+                  <Link
+                    /* @ts-ignore */
+                    href={event.ticket_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full py-4 text-center bg-white/10 hover:bg-primary-600 text-white font-bold rounded-xl transition-colors"
+                  >
+                    Get Tickets / Register
+                  </Link>
+                )}
               </div>
             </div>
           ))}

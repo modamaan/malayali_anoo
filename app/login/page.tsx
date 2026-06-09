@@ -17,7 +17,7 @@ export default function LoginPage() {
     setLoading(true)
     setError(null)
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data: authData, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
@@ -25,8 +25,21 @@ export default function LoginPage() {
     if (error) {
       setError(error.message)
       setLoading(false)
-    } else {
-      router.push('/admin/portfolio')
+    } else if (authData.user) {
+      // Check if they are an admin or a regular user
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', authData.user.id)
+        .single()
+
+      if (profileData?.role === 'admin') {
+        // Admins go to the dashboard
+        router.push('/admin/portfolio')
+      } else {
+        // Regular users go to the homepage
+        router.push('/')
+      }
       router.refresh()
     }
   }
@@ -34,7 +47,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="max-w-md w-full glass p-8 rounded-2xl border border-white/10">
-        <h1 className="text-3xl font-heading font-black text-white mb-6 text-center">Admin Login</h1>
+        <h1 className="text-3xl font-heading font-black text-white mb-6 text-center">Login</h1>
 
         {error && (
           <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-3 rounded-lg mb-6 text-sm">
@@ -51,6 +64,7 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
               required
+              suppressHydrationWarning
             />
           </div>
           <div>
@@ -61,16 +75,27 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
               required
+              suppressHydrationWarning
             />
           </div>
           <button
             type="submit"
             disabled={loading}
             className="w-full bg-primary-600 hover:bg-primary-500 text-white font-bold py-3 rounded-lg transition-colors mt-6 disabled:opacity-50"
+            suppressHydrationWarning
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-gray-400 text-sm">
+            Don't have an account?{' '}
+            <a href="/invite" className="text-primary-500 hover:text-primary-400 font-bold transition-colors">
+              Create one
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   )

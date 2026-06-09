@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
 type Video = {
@@ -10,10 +11,12 @@ type Video = {
   link: string
   date: string
   trending: boolean
+  category: string
 }
 
 export default function AdminPortfolioPage() {
   const [videos, setVideos] = useState<Video[]>([])
+  const [categories, setCategories] = useState<{title: string}[]>([])
   const [loading, setLoading] = useState(true)
   const [formData, setFormData] = useState({
     title: '',
@@ -21,24 +24,26 @@ export default function AdminPortfolioPage() {
     link: '',
     date: new Date().toISOString().split('T')[0],
     trending: false,
+    category: 'Others',
   })
   const [isAdding, setIsAdding] = useState(false)
   
   const supabase = createClient()
 
   useEffect(() => {
-    fetchVideos()
+    fetchVideosAndCategories()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const fetchVideos = async () => {
+  const fetchVideosAndCategories = async () => {
     setLoading(true)
-    const { data, error } = await supabase
-      .from('portfolio_videos')
-      .select('*')
-      .order('date', { ascending: false })
+    const [videosResponse, categoriesResponse] = await Promise.all([
+      supabase.from('portfolio_videos').select('*').order('date', { ascending: false }),
+      supabase.from('video_categories').select('title').order('sort_order', { ascending: true })
+    ])
     
-    if (data) setVideos(data)
+    if (videosResponse.data) setVideos(videosResponse.data)
+    if (categoriesResponse.data) setCategories(categoriesResponse.data)
     setLoading(false)
   }
 
@@ -69,6 +74,7 @@ export default function AdminPortfolioPage() {
       link: formData.link,
       date: formData.date,
       trending: formData.trending,
+      category: formData.category,
       thumbnail_url: generatedThumbnailUrl
     }
 
@@ -83,8 +89,9 @@ export default function AdminPortfolioPage() {
         link: '',
         date: new Date().toISOString().split('T')[0],
         trending: false,
+        category: categories.length > 0 ? categories[0].title : 'Others',
       })
-      fetchVideos()
+      fetchVideosAndCategories()
     } else {
       alert('Error adding video: ' + error.message)
     }
@@ -101,7 +108,7 @@ export default function AdminPortfolioPage() {
       .eq('id', id)
 
     if (!error) {
-      fetchVideos()
+      fetchVideosAndCategories()
     } else {
       alert('Error deleting video: ' + error.message)
     }
@@ -139,6 +146,28 @@ export default function AdminPortfolioPage() {
                     onChange={e => setFormData({...formData, link: e.target.value})}
                     className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-400 mb-1">Category</label>
+                  <select
+                    required
+                    value={formData.category}
+                    onChange={e => setFormData({...formData, category: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white [&>option]:bg-[#1a1a1d]"
+                  >
+                    {categories.length === 0 ? (
+                      <option value="Others">Others</option>
+                    ) : (
+                      categories.map(cat => (
+                        <option key={cat.title} value={cat.title}>{cat.title}</option>
+                      ))
+                    )}
+                  </select>
+                  <div className="flex justify-end mt-2">
+                    <Link href="/admin/categories" className="text-xs text-primary-400 hover:text-primary-300 transition-colors font-medium">
+                      + Create new category
+                    </Link>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm text-gray-400 mb-1">Date</label>
@@ -190,8 +219,9 @@ export default function AdminPortfolioPage() {
                     <img src={video.thumbnail_url} alt={video.title} className="w-full sm:w-32 h-48 sm:h-20 object-cover rounded-lg shrink-0" />
                     <div className="flex-1 min-w-0 w-full">
                       <h3 className="text-white font-bold truncate">{video.title}</h3>
-                      <div className="text-sm text-gray-400 flex flex-wrap gap-x-3 gap-y-1 mt-1">
+                      <div className="text-sm text-gray-400 flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
                         <span>{video.date}</span>
+                        <span className="bg-white/10 px-2 py-0.5 rounded text-xs font-medium text-white">{video.category || 'Others'}</span>
                         {video.trending && <span className="text-primary-500">Trending</span>}
                         <a href={video.link} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline truncate">Link</a>
                       </div>

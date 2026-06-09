@@ -8,59 +8,35 @@ import { createClient } from "@/lib/supabase/client";
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showAdminLink, setShowAdminLink] = useState(false);
+  const [userRole, setUserRole] = useState<'admin' | 'user' | null>(null);
   const pathname = usePathname();
   const supabase = createClient();
 
   useEffect(() => {
-    // 1. Check if this device has been used by an admin before
-    if (typeof window !== 'undefined') {
-      const knownDevice = localStorage.getItem('knownAdminDevice');
-      if (knownDevice === 'true') {
-        setShowAdminLink(true);
-      }
-    }
-
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user?.email) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('email', session.user.email)
-          .limit(1);
-
-        if (data && data.length > 0 && data[0].role === 'admin') {
-          setShowAdminLink(true);
-          localStorage.setItem('knownAdminDevice', 'true'); // Remember this device forever
-        } else {
-          setShowAdminLink(false);
-          localStorage.removeItem('knownAdminDevice');
-        }
-      }
+    const fetchRole = async (userId: string) => {
+      const { data } = await supabase.from('profiles').select('role').eq('id', userId).single();
+      setUserRole(data?.role || 'user');
     };
-    checkUser();
 
-    // Listen for auth changes (login/logout)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user?.email) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('email', session.user.email)
-          .limit(1);
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) fetchRole(session.user.id);
+      else setUserRole(null);
+    };
+    checkSession();
 
-        if (data && data.length > 0 && data[0].role === 'admin') {
-          setShowAdminLink(true);
-          localStorage.setItem('knownAdminDevice', 'true');
-        }
-      }
-      // Notice: We deliberately DO NOT set showAdminLink to false when they log out.
-      // Because we want the button to stay visible for this specific computer.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) fetchRole(session.user.id);
+      else setUserRole(null);
     });
 
     return () => subscription.unsubscribe();
-  }, [supabase.auth]);
+  }, [supabase]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUserRole(null);
+  };
 
   const baseLinks = [
     { name: "Home", href: "/" },
@@ -72,7 +48,11 @@ export default function Navbar() {
     { name: "Contact", href: "/contact" },
   ];
 
-  const links = showAdminLink ? [...baseLinks, { name: "Admin", href: "/admin/portfolio" }] : baseLinks;
+  let extraLink = null;
+  if (userRole === 'admin') extraLink = { name: "Admin", href: "/admin/portfolio", isPrimaryButton: true };
+  else if (userRole === 'user') extraLink = { name: "Logout", href: "#", isButton: true, isPrimaryButton: true };
+
+  const links = extraLink ? [...baseLinks, extraLink] : baseLinks;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/10 transition-all duration-300">
@@ -90,19 +70,42 @@ export default function Navbar() {
             <div className="ml-10 flex items-baseline space-x-8">
               {links.map((link) => {
                 const isActive = pathname === link.href;
-                const isAdminLink = link.name === "Admin";
+                const isPrimary = (link as any).isPrimaryButton;
+
+                if ((link as any).isButton) {
+                  return (
+                    <button
+                      key={link.name}
+                      onClick={handleLogout}
+                      className="bg-primary-600 hover:bg-primary-500 text-white font-bold px-5 py-2 rounded-lg transition-colors text-sm uppercase tracking-widest whitespace-nowrap"
+                    >
+                      {link.name}
+                    </button>
+                  );
+                }
+
+                if (isPrimary) {
+                  return (
+                    <Link
+                      key={link.name}
+                      href={link.href}
+                      className="bg-primary-600 hover:bg-primary-500 text-white font-bold px-5 py-2 rounded-lg transition-colors text-sm uppercase tracking-widest whitespace-nowrap"
+                    >
+                      {link.name}
+                    </Link>
+                  );
+                }
+
                 return (
                   <Link
                     key={link.name}
                     href={link.href}
-                    className={`relative px-2 py-2 text-sm font-medium uppercase tracking-widest transition-colors group ${
-                        isActive ? "text-white" : isAdminLink ? "text-primary-500 font-bold hover:text-primary-400" : "text-gray-300 hover:text-white"
+                    className={`relative px-2 py-2 text-sm font-medium uppercase tracking-widest transition-colors group whitespace-nowrap ${
+                        isActive ? "text-white" : "text-gray-300 hover:text-white"
                       }`}
                   >
                     {link.name}
-                    <span className={`absolute left-0 -bottom-1 h-1 transition-all duration-300 ${
-                        isAdminLink ? "bg-primary-500" : "bg-primary-500"
-                    } ${isActive ? "w-full" : "w-0 group-hover:w-full"
+                    <span className={`absolute left-0 -bottom-1 h-1 transition-all duration-300 bg-primary-500 ${isActive ? "w-full" : "w-0 group-hover:w-full"
                       }`}></span>
                   </Link>
                 );

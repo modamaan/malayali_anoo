@@ -33,7 +33,7 @@ export default function AdminUsersPage() {
       fetchData()
     }
     init()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchData = async () => {
@@ -76,7 +76,7 @@ export default function AdminUsersPage() {
     if (!newEmail) return
 
     setIsAdding(true)
-    
+
     // 1. Check if they already exist in the database (even if they are a regular user)
     const { data: dbProfile } = await supabase.from('profiles').select('id, role').eq('email', newEmail).single()
 
@@ -103,11 +103,14 @@ export default function AdminUsersPage() {
       if (error) {
         alert('Error adding invitation: Details: ' + error.message)
       } else {
+        const link = `${window.location.origin}/invite?email=${encodeURIComponent(newEmail)}`;
+        navigator.clipboard.writeText(link);
+        alert(`Invitation added! The invite link for ${newEmail} has been copied to your clipboard.`);
         setNewEmail('')
         fetchData()
       }
     }
-    
+
     setIsAdding(false)
   }
 
@@ -138,57 +141,47 @@ export default function AdminUsersPage() {
             </p>
           </div>
         </div>
-        
+
         {loading ? (
           <div className="flex justify-center py-10">
             <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : (
           <div className="space-y-6">
-            {/* Pending Invitations Section */}
-            {invitations.length > 0 && (
-              <div className="bg-[#1a1a1d] border border-primary-500/30 rounded-xl overflow-hidden">
-                <div className="bg-primary-500/10 px-4 py-3 border-b border-primary-500/20">
-                  <h3 className="text-sm font-bold text-primary-500 uppercase tracking-widest">Pending Invitations</h3>
-                  <p className="text-xs text-primary-400/80 mt-1">These emails will automatically become Admins the first time they log in.</p>
-                </div>
-                <div className="divide-y divide-white/10">
-                  {invitations.map((invite) => (
-                    <div key={invite.email} className="flex justify-between items-center p-4 hover:bg-white/5 transition-colors">
-                      <div>
-                        <p className="font-medium text-white flex items-center gap-2">
-                          {invite.email}
-                          <span className="text-[10px] font-bold bg-yellow-500/20 text-yellow-500 px-2 py-0.5 rounded uppercase tracking-wider">Pending</span>
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">Invited: {new Date(invite.created_at).toLocaleDateString()}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => {
-                            const link = `${window.location.origin}/invite?email=${encodeURIComponent(invite.email)}`;
-                            navigator.clipboard.writeText(link);
-                            alert('Invite link copied to clipboard! Send this to your colleague.');
-                          }}
-                          className="text-primary-400 hover:text-primary-300 text-xs font-bold px-3 py-1.5 rounded bg-primary-500/10 hover:bg-primary-500/20 transition-colors"
-                        >
-                          Copy Link
-                        </button>
-                        <button
-                          onClick={() => handleRevokeInvite(invite.email)}
-                          className="text-red-500 hover:text-red-400 text-xs font-medium px-3 py-1.5 rounded bg-red-500/10 hover:bg-red-500/20 transition-colors"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Admin Profiles */}
             <div className="bg-[#1a1a1d] border border-white/10 rounded-xl overflow-hidden">
               <div className="divide-y divide-white/10">
+                {/* Pending Invitations rendered as Admins */}
+                {invitations.map((invite) => (
+                  <div key={invite.email} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 hover:bg-white/5 transition-colors gap-4">
+                    <div>
+                      <p className="font-medium text-white flex items-center gap-2">
+                        {invite.email}
+                        <span className="text-[10px] font-bold bg-yellow-500/20 text-yellow-500 px-2 py-0.5 rounded uppercase tracking-wider">Pending Invite</span>
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">Invited: {new Date(invite.created_at).toLocaleDateString()}</p>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-400">Role:</span>
+                        <span className="text-sm font-bold uppercase tracking-wider px-2 py-1 rounded bg-primary-500/10 text-primary-500">
+                          admin
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() => handleRevokeInvite(invite.email)}
+                        className="text-sm font-medium px-4 py-2 rounded transition-colors bg-red-500/10 text-red-500 hover:bg-red-500/20"
+                      >
+                        Revoke Admin
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Existing Profiles */}
                 {profiles.map((profile) => (
                   <div key={profile.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 hover:bg-white/5 transition-colors gap-4">
                     <div>
@@ -200,13 +193,12 @@ export default function AdminUsersPage() {
                       </p>
                       <p className="text-xs text-gray-400 mt-1">Joined: {new Date(profile.created_at).toLocaleDateString()}</p>
                     </div>
-                    
+
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-gray-400">Role:</span>
-                        <span className={`text-sm font-bold uppercase tracking-wider px-2 py-1 rounded ${
-                          profile.role === 'admin' ? 'bg-primary-500/10 text-primary-500' : 'bg-gray-500/10 text-gray-400'
-                        }`}>
+                        <span className={`text-sm font-bold uppercase tracking-wider px-2 py-1 rounded ${profile.role === 'admin' ? 'bg-primary-500/10 text-primary-500' : 'bg-gray-500/10 text-gray-400'
+                          }`}>
                           {profile.role}
                         </span>
                       </div>
@@ -214,11 +206,10 @@ export default function AdminUsersPage() {
                       {profile.id !== currentUserId && (
                         <button
                           onClick={() => toggleRole(profile.id, profile.role)}
-                          className={`text-sm font-medium px-4 py-2 rounded transition-colors ${
-                            profile.role === 'admin' 
-                              ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20' 
+                          className={`text-sm font-medium px-4 py-2 rounded transition-colors ${profile.role === 'admin'
+                              ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20'
                               : 'bg-white/10 text-white hover:bg-white/20'
-                          }`}
+                            }`}
                         >
                           {profile.role === 'admin' ? 'Revoke Admin' : 'Make Admin'}
                         </button>
@@ -226,7 +217,7 @@ export default function AdminUsersPage() {
                     </div>
                   </div>
                 ))}
-                {profiles.length === 0 && (
+                {profiles.length === 0 && invitations.length === 0 && (
                   <div className="p-8 text-center text-gray-400">No users found.</div>
                 )}
               </div>
@@ -254,13 +245,13 @@ export default function AdminUsersPage() {
                 If they haven't created an account yet, you can invite them here. When they finally log in, they will automatically be assigned the Admin role!
               </p>
             </div>
-            
+
             <button
               type="submit"
               disabled={isAdding || !newEmail}
               className="w-full bg-primary-600 hover:bg-primary-500 text-white font-bold py-2.5 rounded-lg transition-colors disabled:opacity-50"
             >
-              {isAdding ? 'Inviting...' : 'Grant Access'}
+              {isAdding ? 'Inviting...' : 'Grant Access & Copy Link'}
             </button>
           </form>
         </div>

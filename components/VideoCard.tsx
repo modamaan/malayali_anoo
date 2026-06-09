@@ -13,7 +13,7 @@ export default function VideoCard({ video }: { video: Video }) {
       {/* Thumbnail */}
       <div className="relative w-full aspect-video overflow-hidden">
         <Image
-          src={video.thumbnailUrl}
+          src={video.thumbnail_url || video.thumbnailUrl || ''}
           alt={video.title}
           fill
           sizes="(max-width: 640px) 260px, (max-width: 768px) 300px, 320px"

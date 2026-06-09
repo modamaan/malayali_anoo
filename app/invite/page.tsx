@@ -57,12 +57,11 @@ function InviteForm() {
         <input
           type="email"
           value={email}
-          readOnly
-          className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-gray-400 focus:outline-none cursor-not-allowed"
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
           required
           suppressHydrationWarning
         />
-        <p className="text-xs text-gray-500 mt-1">This email has been pre-approved for Admin access.</p>
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-1">Create a Password</label>
@@ -85,6 +84,15 @@ function InviteForm() {
       >
         {loading ? 'Creating Account...' : 'Create Account'}
       </button>
+
+      <div className="mt-6 text-center">
+        <p className="text-gray-400 text-sm">
+          Already have an account?{' '}
+          <a href="/login" className="text-primary-500 hover:text-primary-400 font-bold transition-colors">
+            Login
+          </a>
+        </p>
+      </div>
     </form>
     </>
   )
@@ -94,8 +102,8 @@ export default function InvitePage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="max-w-md w-full glass p-8 rounded-2xl border border-white/10 shadow-2xl">
-        <h1 className="text-3xl font-heading font-black text-white mb-2 text-center">Accept Invitation</h1>
-        <p className="text-gray-400 text-center text-sm mb-8">Create your account to access the Admin Dashboard</p>
+        <h1 className="text-3xl font-heading font-black text-white mb-2 text-center">Create Account</h1>
+        <p className="text-gray-400 text-center text-sm mb-8">Join the Malayali Aano community</p>
         
         <Suspense fallback={<div className="text-center text-gray-500">Loading...</div>}>
           <InviteForm />

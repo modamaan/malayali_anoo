@@ -1,17 +1,24 @@
 import MarqueeRow from "./MarqueeRow";
-import { MOCK_SPONSORS, TRUST_STATS } from "@/lib/data";
+import { TRUST_STATS } from "@/lib/data";
+import { createClient } from "@/lib/supabase/server";
 
 /**
  * Premium trust / partners section.
- * Data is driven entirely by MOCK_SPONSORS and TRUST_STATS in lib/data.ts.
- * To add a new sponsor just push to MOCK_SPONSORS — no JSX changes needed.
- * To change stats, edit TRUST_STATS.
+ * Data is driven entirely by TRUST_STATS in lib/data.ts and dynamically fetched sponsors from the database.
  */
-export default function TrustSection() {
+export default async function TrustSection() {
+  const supabase = await createClient();
+  const { data: sponsors } = await supabase
+    .from("sponsors")
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  const sponsorList = sponsors || [];
+
   // Offset row-2 so logos don't mirror row-1 perfectly
   const row2Sponsors = [
-    ...MOCK_SPONSORS.slice(2),
-    ...MOCK_SPONSORS.slice(0, 2),
+    ...sponsorList.slice(2),
+    ...sponsorList.slice(0, 2),
   ];
 
   return (
@@ -81,7 +88,7 @@ export default function TrustSection() {
 
         {/* Row 1 — left (all screens) */}
         <MarqueeRow
-          sponsors={MOCK_SPONSORS}
+          sponsors={sponsorList}
           direction="left"
           className="border-b border-white/[0.05]"
         />

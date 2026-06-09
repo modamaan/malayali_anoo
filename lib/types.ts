@@ -4,9 +4,11 @@ export interface Video {
   title: string;
   description?: string;
   youtubeId: string;
-  thumbnailUrl: string;
+  thumbnailUrl?: string;
+  thumbnail_url?: string;
   link: string;
   date: string;
+  category?: string;
 }
 
 // ─── Event ───────────────────────────────────────────────────────────────────
