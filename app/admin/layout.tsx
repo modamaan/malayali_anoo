@@ -4,10 +4,10 @@ import AdminNav from '@/components/AdminNav'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-  // 1. Not logged in? Redirect immediately before the page even renders.
-  if (!session?.user?.email) {
+  // 1. Not logged in or invalid token? Redirect immediately before the page even renders.
+  if (authError || !user?.email) {
     redirect('/login')
   }
 
@@ -15,7 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const { data, error } = await supabase
     .from('profiles')
     .select('role')
-    .ilike('email', session.user.email)
+    .ilike('email', user.email)
     .single()
 
   // 3. Not an admin? Redirect away.
@@ -24,7 +24,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   // Clean up any pending invitations for this email since they are now an active admin
-  await supabase.from('admin_invitations').delete().eq('email', session.user.email)
+  await supabase.from('admin_invitations').delete().eq('email', user.email)
 
   // Authorized! Return the layout.
   return (
