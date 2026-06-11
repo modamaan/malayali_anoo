@@ -63,3 +63,24 @@ export async function reorderProducts(updates: { id: string, sort_order: number 
   revalidatePath('/admin/shop')
   revalidatePath('/shop')
 }
+
+export async function updateProduct(
+  id: string,
+  name: string,
+  description: string,
+  price: number,
+  currency: string,
+  images: string[],
+  sizes: string[],
+  colors: string[]
+) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('products')
+    .update({ name, description, price, currency, images, sizes, colors })
+    .eq('id', id)
+  if (error) throw new Error(error.message)
+
+  revalidatePath('/admin/shop')
+  revalidatePath('/shop')
+}

@@ -1,12 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import ProductCard from "@/components/ProductCard";
+import ShopBanner from "./ShopBanner";
 
 export const dynamic = 'force-dynamic'
 
-export default async function ShopPage() {
+export default async function ShopPage({ searchParams }: { searchParams: Promise<{ success?: string; cancelled?: string }> }) {
   const supabase = await createClient()
+  const params = await searchParams
 
-  // Fetch real products from the database
   const { data: products, error } = await supabase
     .from('products')
     .select('*')
@@ -18,6 +19,10 @@ export default async function ShopPage() {
 
   return (
     <div className="flex flex-col min-h-screen pt-12 pb-24">
+      {/* Payment result banners */}
+      {params.success === 'true' && <ShopBanner type="success" />}
+      {params.cancelled === 'true' && <ShopBanner type="cancelled" />}
+
       <section className="relative py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full text-center">
         <h1 className="text-5xl md:text-7xl font-heading font-black tracking-tighter mb-6">
           <span className="text-white">OUR </span>

@@ -2,11 +2,14 @@
 
 import { useState } from 'react'
 import type { MerchItem } from '@/lib/types'
+import { useCart } from '@/lib/cart-context'
 
 export default function ProductCard({ product }: { product: MerchItem }) {
+  const { addToCart } = useCart()
   const [currentImageIdx, setCurrentImageIdx] = useState(0)
   const [selectedSize, setSelectedSize] = useState<string | null>(product.sizes?.[0] || null)
   const [selectedColor, setSelectedColor] = useState<string | null>(product.colors?.[0] || null)
+  const [addedFeedback, setAddedFeedback] = useState(false)
 
   const handleNextImage = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -21,10 +24,9 @@ export default function ProductCard({ product }: { product: MerchItem }) {
   }
 
   const handleAddToCart = () => {
-    let msg = `Added ${product.name} to cart!`
-    if (selectedSize) msg += `\nSize: ${selectedSize}`
-    if (selectedColor) msg += `\nColor: ${selectedColor}`
-    alert(msg)
+    addToCart(product, selectedSize, selectedColor)
+    setAddedFeedback(true)
+    setTimeout(() => setAddedFeedback(false), 1500)
   }
 
   return (
@@ -112,8 +114,22 @@ export default function ProductCard({ product }: { product: MerchItem }) {
         {/* Footer: Price & Action */}
         <div className="flex justify-between items-center mt-auto pt-4 border-t border-zinc-100">
           <span className="text-2xl font-black text-zinc-900">{product.currency || '£'}{product.price}</span>
-          <button onClick={handleAddToCart} className="bg-zinc-900 text-white px-6 py-2.5 rounded-full font-medium hover:bg-black hover:scale-105 active:scale-95 transition-all duration-200 shadow-md">
-            Add To Cart
+          <button
+            onClick={handleAddToCart}
+            className={`px-6 py-2.5 rounded-full font-medium transition-all duration-300 shadow-md flex items-center gap-2 ${
+              addedFeedback
+                ? 'bg-green-500 text-white scale-105'
+                : 'bg-zinc-900 text-white hover:bg-black hover:scale-105 active:scale-95'
+            }`}
+          >
+            {addedFeedback ? (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Added!
+              </>
+            ) : (
+              'Add To Cart'
+            )}
           </button>
         </div>
       </div>
