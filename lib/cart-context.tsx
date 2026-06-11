@@ -70,7 +70,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems(prev => prev.map(i => i.cartItemId === cartItemId ? { ...i, quantity } : i))
   }, [removeFromCart])
 
-  const clearCart = useCallback(() => setItems([]), [])
+  const clearCart = useCallback(() => {
+    setItems([])
+    try { localStorage.removeItem('cart') } catch {}
+  }, [])
   const openCart = useCallback(() => setIsOpen(true), [])
   const closeCart = useCallback(() => setIsOpen(false), [])
 

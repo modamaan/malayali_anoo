@@ -1,26 +1,41 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import type { MerchItem } from '@/lib/types'
 import { useCart } from '@/lib/cart-context'
 
 export default function ProductCard({ product }: { product: MerchItem }) {
   const { addToCart } = useCart()
+  const scrollRef = useRef<HTMLDivElement>(null)
   const [currentImageIdx, setCurrentImageIdx] = useState(0)
   const [selectedSize, setSelectedSize] = useState<string | null>(product.sizes?.[0] || null)
   const [selectedColor, setSelectedColor] = useState<string | null>(product.colors?.[0] || null)
   const [addedFeedback, setAddedFeedback] = useState(false)
 
+  const handleScroll = () => {
+    if (!scrollRef.current || !product.images) return
+    const scrollLeft = scrollRef.current.scrollLeft
+    const width = scrollRef.current.clientWidth
+    const newIdx = Math.round(scrollLeft / width)
+    if (newIdx !== currentImageIdx) setCurrentImageIdx(newIdx)
+  }
+
+  const scrollTo = (idx: number) => {
+    if (!scrollRef.current || !product.images) return
+    const width = scrollRef.current.clientWidth
+    scrollRef.current.scrollTo({ left: width * idx, behavior: 'smooth' })
+  }
+
   const handleNextImage = (e: React.MouseEvent) => {
     e.preventDefault()
     if (!product.images || product.images.length <= 1) return
-    setCurrentImageIdx((prev) => (prev + 1) % product.images.length)
+    scrollTo((currentImageIdx + 1) % product.images.length)
   }
 
   const handlePrevImage = (e: React.MouseEvent) => {
     e.preventDefault()
     if (!product.images || product.images.length <= 1) return
-    setCurrentImageIdx((prev) => (prev - 1 + product.images.length) % product.images.length)
+    scrollTo((currentImageIdx - 1 + product.images.length) % product.images.length)
   }
 
   const handleAddToCart = () => {
@@ -32,37 +47,46 @@ export default function ProductCard({ product }: { product: MerchItem }) {
   return (
     <div className="bg-white rounded-[2rem] flex flex-col w-full shadow-2xl hover:shadow-primary-500/10 transition-shadow duration-300 relative group">
       {/* Image Gallery Container */}
-      <div className="aspect-[4/3] relative bg-zinc-100 overflow-hidden rounded-[1.5rem] m-3">
-        {product.images && product.images.length > 0 ? (
-          <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src={product.images[currentImageIdx]} 
-              alt={product.name} 
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-            {/* Gallery Arrows */}
-            {product.images.length > 1 && (
-              <div className="absolute inset-0 flex items-center justify-between p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={handlePrevImage} className="w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm text-zinc-900 flex items-center justify-center shadow hover:bg-white hover:scale-110 transition-all">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-                </button>
-                <button onClick={handleNextImage} className="w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm text-zinc-900 flex items-center justify-center shadow hover:bg-white hover:scale-110 transition-all">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-                </button>
-              </div>
-            )}
-            {/* Gallery Dots */}
-            {product.images.length > 1 && (
-              <div className="absolute bottom-3 inset-x-0 flex justify-center gap-1.5 z-10">
-                {product.images.map((_, i) => (
-                  <div key={i} className={`h-1.5 rounded-full transition-all ${i === currentImageIdx ? 'w-4 bg-primary-500' : 'w-1.5 bg-black/30'}`} />
-                ))}
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-zinc-400">No Image</div>
+      <div className="aspect-[4/3] relative rounded-[1.5rem] m-3 overflow-hidden">
+        <div 
+          ref={scrollRef}
+          onScroll={handleScroll}
+          className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth bg-zinc-100 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        >
+          {product.images && product.images.length > 0 ? (
+            product.images.map((img, idx) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img 
+                key={idx}
+                src={img} 
+                alt={`${product.name} ${idx + 1}`} 
+                className="w-full h-full shrink-0 object-cover snap-center group-hover:scale-105 transition-transform duration-500"
+              />
+            ))
+          ) : (
+            <div className="w-full h-full shrink-0 flex items-center justify-center text-zinc-400">No Image</div>
+          )}
+        </div>
+
+        {/* Gallery Arrows */}
+        {product.images && product.images.length > 1 && (
+          <div className="absolute inset-0 flex items-center justify-between p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            <button onClick={handlePrevImage} className="w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm text-zinc-900 flex items-center justify-center shadow hover:bg-white hover:scale-110 transition-all pointer-events-auto">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <button onClick={handleNextImage} className="w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm text-zinc-900 flex items-center justify-center shadow hover:bg-white hover:scale-110 transition-all pointer-events-auto">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          </div>
+        )}
+        
+        {/* Gallery Dots */}
+        {product.images && product.images.length > 1 && (
+          <div className="absolute bottom-3 inset-x-0 flex justify-center gap-1.5 z-10 pointer-events-none">
+            {product.images.map((_, i) => (
+              <div key={i} className={`h-1.5 rounded-full transition-all ${i === currentImageIdx ? 'w-4 bg-primary-500' : 'w-1.5 bg-black/30'}`} />
+            ))}
+          </div>
         )}
       </div>
       
