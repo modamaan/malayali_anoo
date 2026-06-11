@@ -58,6 +58,12 @@ export default function AdminNav() {
             Manage Sponsors
           </Link>
           <Link
+            href="/admin/shop"
+            className={`pb-4 border-b-2 font-medium transition-colors ${pathname === '/admin/shop' ? 'border-primary-500 text-white' : 'border-transparent text-gray-400 hover:text-white'}`}
+          >
+            Manage Shop
+          </Link>
+          <Link
             href="/admin/users"
             className={`pb-4 border-b-2 font-medium transition-colors ${pathname === '/admin/users' ? 'border-primary-500 text-white' : 'border-transparent text-gray-400 hover:text-white'}`}
           >

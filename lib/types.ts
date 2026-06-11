@@ -44,7 +44,10 @@ export interface MerchItem {
   id: string;
   name: string;
   price: number;
-  currency: string;
-  imageUrl: string;
+  currency?: string;
+  images: string[];
   description: string;
+  sizes: string[];
+  colors: string[];
+  sort_order?: number;
 }

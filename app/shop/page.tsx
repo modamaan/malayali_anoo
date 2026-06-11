@@ -1,7 +1,21 @@
-import { MOCK_MERCH } from "@/lib/data";
-import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import ProductCard from "@/components/ProductCard";
 
-export default function ShopPage() {
+export const dynamic = 'force-dynamic'
+
+export default async function ShopPage() {
+  const supabase = await createClient()
+
+  // Fetch real products from the database
+  const { data: products, error } = await supabase
+    .from('products')
+    .select('*')
+    .order('sort_order', { ascending: true })
+
+  if (error) {
+    console.error("Error fetching products:", error.message)
+  }
+
   return (
     <div className="flex flex-col min-h-screen pt-12 pb-24">
       <section className="relative py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full text-center">
@@ -15,35 +29,18 @@ export default function ShopPage() {
       </section>
 
       <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {MOCK_MERCH.map((product) => (
-            <div key={product.id} className="group bg-card border border-card-border rounded-2xl overflow-hidden hover:border-primary-500/50 transition-colors flex flex-col">
-              <div className="aspect-[4/5] relative overflow-hidden bg-black/50 p-8 flex items-center justify-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                  src={product.imageUrl} 
-                  alt={product.name} 
-                  className="w-full h-full object-contain transform group-hover:scale-110 transition-transform duration-700"
-                />
-                
-                {/* Quick Add Overlay */}
-                <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                  <button className="w-full py-4 bg-primary-600 text-white font-bold rounded-xl shadow-lg hover:bg-primary-500 transition-colors">
-                    Add to Cart
-                  </button>
-                </div>
-              </div>
-              
-              <div className="p-6 flex flex-col flex-grow">
-                <div className="flex justify-between items-start mb-2 gap-4">
-                  <h3 className="text-xl font-bold text-white group-hover:text-primary-500 transition-colors">{product.name}</h3>
-                  <span className="text-lg font-black text-white bg-white/10 px-3 py-1 rounded-lg">₹{product.price}</span>
-                </div>
-                <p className="text-gray-400 text-sm mt-2 line-clamp-2">{product.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        {(!products || products.length === 0) ? (
+          <div className="text-center py-24 glass rounded-3xl border border-white/10">
+            <h2 className="text-2xl font-bold text-white mb-2">Shop is currently empty</h2>
+            <p className="text-gray-400">Check back later for new drops!</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
