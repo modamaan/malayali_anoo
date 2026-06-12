@@ -70,10 +70,18 @@ export default function CartDrawer() {
     if (items.length === 0) return
     setIsCheckingOut(true)
     try {
+      // ✅ Only send the minimum info needed — the server fetches price/name from DB
+      const payload = items.map(item => ({
+        productId: item.product.id,
+        selectedSize: item.selectedSize,
+        selectedColor: item.selectedColor,
+        quantity: item.quantity,
+      }))
+
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items }),
+        body: JSON.stringify({ items: payload }),
       })
 
       if (!res.ok) {
@@ -83,8 +91,8 @@ export default function CartDrawer() {
 
       const { url } = await res.json()
       window.location.href = url
-    } catch (err: any) {
-      alert('Checkout error: ' + err.message)
+    } catch (err: unknown) {
+      alert('Checkout error: ' + (err instanceof Error ? err.message : 'Unknown error'))
     } finally {
       setIsCheckingOut(false)
     }

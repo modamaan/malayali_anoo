@@ -3,8 +3,26 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-export async function addCategory(title: string, subtitle: string, sort_order: number) {
+// ─── Auth Guard ────────────────────────────────────────────────────────────────
+async function requireAdmin() {
   const supabase = await createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user?.email) throw new Error('Unauthorized: not logged in')
+
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('email', user.email)
+    .single()
+
+  if (profileError || profile?.role !== 'admin') throw new Error('Forbidden: admin access required')
+  return supabase
+}
+
+// ─── Actions ───────────────────────────────────────────────────────────────────
+
+export async function addCategory(title: string, subtitle: string, sort_order: number) {
+  const supabase = await requireAdmin()
   const { error } = await supabase.from('video_categories').insert([{ title, subtitle, sort_order }])
   if (error) throw new Error(error.message)
   
@@ -13,7 +31,7 @@ export async function addCategory(title: string, subtitle: string, sort_order: n
 }
 
 export async function deleteCategory(id: string) {
-  const supabase = await createClient()
+  const supabase = await requireAdmin()
   const { error } = await supabase.from('video_categories').delete().eq('id', id)
   if (error) throw new Error(error.message)
   
@@ -22,7 +40,7 @@ export async function deleteCategory(id: string) {
 }
 
 export async function reorderCategories(updates: { id: string, sort_order: number }[]) {
-  const supabase = await createClient()
+  const supabase = await requireAdmin()
   
   // Update all categories in parallel
   const promises = updates.map(update => 

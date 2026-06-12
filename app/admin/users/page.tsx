@@ -27,9 +27,10 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setCurrentUserId(session?.user?.id || null)
-      setCurrentUserEmail(session?.user?.email || null)
+      // getUser() verifies the JWT server-side — cannot be spoofed from localStorage
+      const { data: { user } } = await supabase.auth.getUser()
+      setCurrentUserId(user?.id || null)
+      setCurrentUserEmail(user?.email || null)
       fetchData()
     }
     init()
