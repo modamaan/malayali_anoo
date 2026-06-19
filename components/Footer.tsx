@@ -54,9 +54,11 @@ export default function Footer() {
           <p className="text-gray-500 mb-3 md:mb-0">
             &copy; {new Date().getFullYear()} Malayali Aaanoo. All rights reserved.
           </p>
-          <div className="flex space-x-6">
-            <Link href="#" className="text-gray-500 hover:text-white transition-colors">Privacy Policy</Link>
-            <Link href="#" className="text-gray-500 hover:text-white transition-colors">Terms of Service</Link>
+          <div className="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-2 mt-4 md:mt-0">
+            <Link href="/terms-and-conditions" className="text-gray-500 hover:text-white transition-colors">Terms & Conditions</Link>
+            <Link href="/terms-of-use" className="text-gray-500 hover:text-white transition-colors">Terms of Use</Link>
+            <Link href="/privacy-notice" className="text-gray-500 hover:text-white transition-colors">Privacy Notice</Link>
+            <Link href="/cookie-policy" className="text-gray-500 hover:text-white transition-colors">Cookie Policy</Link>
           </div>
         </div>
       </div>
