@@ -80,8 +80,8 @@ export default function VideoRow({ title, subtitle, videos, linkHref }: VideoRow
         ref={scrollContainerRef}
         className="flex overflow-x-auto snap-x snap-mandatory gap-5 md:gap-6 pb-6 hide-scrollbar scroll-smooth"
       >
-        {videos.map((video) => (
-          <VideoCard key={video.id} video={video} />
+        {videos.map((video, index) => (
+          <VideoCard key={video.id} video={video} priority={index < 4} />
         ))}
       </div>
     </section>

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
 type PortfolioVideo = {
@@ -15,6 +14,14 @@ type PortfolioVideo = {
 };
 
 const ITEMS_PER_PAGE = 12;
+
+function extractYoutubeId(url: string): string | null {
+  if (!url) return null;
+  const match = url.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|v\/))([a-zA-Z0-9_-]{11})/
+  );
+  return match ? match[1] : null;
+}
 
 export default function PortfolioGrid({ 
   initialVideos, 
@@ -29,6 +36,7 @@ export default function PortfolioGrid({
   const [fetchingMore, setFetchingMore] = useState(false);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [page, setPage] = useState(0);
+  const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
   
   // Track first mount so we don't re-fetch "Latest" immediately
   const isFirstMount = useRef(true);
@@ -95,6 +103,14 @@ export default function PortfolioGrid({
     fetchVideos(activeFilter, nextPage, false);
   };
 
+  const handleVideoClick = (e: React.MouseEvent, url: string) => {
+    const youtubeId = extractYoutubeId(url);
+    if (youtubeId) {
+      e.preventDefault();
+      setPlayingVideoId(youtubeId);
+    }
+  };
+
   return (
     <>
       {/* Filters */}
@@ -123,13 +139,14 @@ export default function PortfolioGrid({
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8 text-left">
-              {videos.map((video) => (
-                <Link
+              {videos.map((video, index) => (
+                <a
                   href={video.link}
                   key={video.id}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex flex-col rounded-2xl overflow-hidden bg-[#1a1a1d] border border-white/[0.06] hover:border-primary-500/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_40px_rgba(210,27,46,0.15)]"
+                  onClick={(e) => handleVideoClick(e, video.link)}
+                  className="group flex flex-col rounded-2xl overflow-hidden bg-[#1a1a1d] border border-white/[0.06] hover:border-primary-500/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_40px_rgba(210,27,46,0.15)] cursor-pointer"
                 >
                   {/* Thumbnail */}
                   <div className="relative w-full aspect-video overflow-hidden">
@@ -139,6 +156,7 @@ export default function PortfolioGrid({
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      priority={index < 6}
                     />
                     {/* Dark overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1d]/80 via-black/20 to-transparent" />
@@ -159,7 +177,7 @@ export default function PortfolioGrid({
                       {video.title}
                     </h3>
                   </div>
-                </Link>
+                </a>
               ))}
             </div>
             
@@ -177,6 +195,35 @@ export default function PortfolioGrid({
           </>
         )}
       </div>
+
+      {/* Video Modal Overlay */}
+      {playingVideoId && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-12 bg-black/90 backdrop-blur-sm"
+          onClick={() => setPlayingVideoId(null)}
+        >
+          <div 
+            className="relative w-full max-w-6xl aspect-video bg-black rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10"
+            onClick={e => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setPlayingVideoId(null)}
+              className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/60 hover:bg-primary-500 text-white rounded-full flex items-center justify-center transition-colors border border-white/10"
+              aria-label="Close video"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <iframe
+              className="w-full h-full"
+              src={`https://www.youtube.com/embed/${playingVideoId}?autoplay=1`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
+        </div>
+      )}
     </>
   );
 }
