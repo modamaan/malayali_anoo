@@ -58,7 +58,18 @@ export default function HeroBanner({ banners }: { banners: Banner[] }) {
     return () => {
       timeouts.forEach(clearTimeout);
     };
-  }, [currentIndex, isMuted]);
+  }, [currentIndex, isMuted, banners]);
+
+  // Auto-slide effect
+  useEffect(() => {
+    if (!banners || banners.length <= 1) return;
+    
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % banners.length);
+    }, 5000); // Change slides every 5 seconds
+
+    return () => clearInterval(timer);
+  }, [currentIndex, banners.length]);
 
   const nextBanner = () => {
     setCurrentIndex((prev) => (prev + 1) % (banners.length || 1));
@@ -71,7 +82,7 @@ export default function HeroBanner({ banners }: { banners: Banner[] }) {
   if (!banners || banners.length === 0) return null;
 
   return (
-    <div className="relative w-full h-[70vh] md:h-[85vh] overflow-hidden">
+    <div className="relative w-full h-[60vh] md:h-[65vh] overflow-hidden">
       {banners.map((banner, index) => {
         const youtubeId = banner.youtube_id || extractYoutubeId(banner.link || '');
         const hasVideo = !!youtubeId;
@@ -169,7 +180,7 @@ export default function HeroBanner({ banners }: { banners: Banner[] }) {
       </button>
 
       {/* Dots */}
-      <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-30 flex space-x-2 md:space-x-3">
+      <div className="absolute bottom-20 md:bottom-24 left-1/2 -translate-x-1/2 z-30 flex space-x-2 md:space-x-3">
         {banners.map((_, index) => (
           <button
             key={index}
@@ -181,6 +192,22 @@ export default function HeroBanner({ banners }: { banners: Banner[] }) {
           />
         ))}
       </div>
+
+      {/* Scroll Down Indicator */}
+      <button 
+        onClick={() => window.scrollBy({ top: window.innerHeight * 0.75, behavior: 'smooth' })}
+        className="absolute bottom-3 md:bottom-3 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center group cursor-pointer"
+        aria-label="Scroll down to explore more"
+      >
+        <span className="text-[10px] md:text-xs text-white/70 group-hover:text-white uppercase tracking-[0.3em] mb-2 font-bold transition-colors drop-shadow-lg">
+          Scroll Down
+        </span>
+        <div className="p-2 md:p-2.5 rounded-full bg-black/20 group-hover:bg-primary-600/80 border border-white/20 transition-all backdrop-blur-sm shadow-lg group-hover:scale-110">
+          <svg className="w-4 h-4 md:w-5 md:h-5 text-white animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </div>
+      </button>
     </div>
   );
 }
