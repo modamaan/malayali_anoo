@@ -10,6 +10,7 @@ import { useCart } from "@/lib/cart-context";
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [userRole, setUserRole] = useState<'admin' | 'user' | null>(null);
+  const [categories, setCategories] = useState<{ id: string; title: string }[]>([]);
   const pathname = usePathname();
   const supabase = createClient();
   const { cartCount, openCart } = useCart();
@@ -20,12 +21,18 @@ export default function Navbar() {
       setUserRole(data?.role || 'user');
     };
 
+    const fetchCategories = async () => {
+      const { data } = await supabase.from('video_categories').select('id, title').order('sort_order');
+      if (data) setCategories(data);
+    };
+
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) fetchRole(session.user.id);
       else setUserRole(null);
     };
     checkSession();
+    fetchCategories();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) fetchRole(session.user.id);
@@ -98,6 +105,38 @@ export default function Navbar() {
                   );
                 }
 
+                if (link.name === "Videos") {
+                  return (
+                    <div key={link.name} className="relative group flex items-center">
+                      <Link
+                        href={link.href}
+                        className={`relative px-2 py-2 text-sm font-medium uppercase tracking-widest transition-colors whitespace-nowrap ${isActive ? "text-white" : "text-gray-300 group-hover:text-white"
+                          }`}
+                      >
+                        {link.name}
+                        <span className={`absolute left-0 -bottom-1 h-1 transition-all duration-300 bg-primary-500 ${isActive ? "w-full" : "w-0 group-hover:w-full"
+                          }`}></span>
+                      </Link>
+                      
+                      {categories.length > 0 && (
+                        <div className="absolute left-0 top-full mt-2 w-56 rounded-xl shadow-2xl bg-zinc-950 border border-white/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden">
+                          <div className="py-2 flex flex-col max-h-[60vh] overflow-y-auto custom-scrollbar">
+                            {categories.map((cat) => (
+                              <Link
+                                key={cat.id}
+                                href={`/portfolio?category=${encodeURIComponent(cat.title)}`}
+                                className="block px-5 py-3 text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors border-l-2 border-transparent hover:border-primary-500"
+                              >
+                                {cat.title}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
                 return (
                   <Link
                     key={link.name}
@@ -157,7 +196,7 @@ export default function Navbar() {
 
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
-        <div className="md:hidden glass border-t border-white/10 absolute top-20 left-0 w-full bg-black/95 shadow-xl animate-fade-in-up">
+        <div className="md:hidden glass border-t border-white/10 absolute top-20 left-0 w-full bg-black/95 shadow-xl animate-fade-in-up max-h-[calc(100vh-5rem)] overflow-y-auto custom-scrollbar">
           <div className="px-4 py-4 space-y-2 flex flex-col">
             {links.map((link) => {
               const isActive = pathname === link.href;

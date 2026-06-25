@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 type PortfolioVideo = {
   id: string;
@@ -25,12 +26,19 @@ function extractYoutubeId(url: string): string | null {
 
 export default function PortfolioGrid({ 
   initialVideos, 
-  initialHasMore 
+  initialHasMore,
+  categories = []
 }: { 
   initialVideos: PortfolioVideo[], 
-  initialHasMore: boolean 
+  initialHasMore: boolean,
+  categories?: { title: string }[]
 }) {
-  const [activeFilter, setActiveFilter] = useState("Latest");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const initialCategory = searchParams.get('category');
+
+  const [activeFilter, setActiveFilter] = useState(initialCategory || "Latest");
   const [videos, setVideos] = useState<PortfolioVideo[]>(initialVideos);
   const [loading, setLoading] = useState(false);
   const [fetchingMore, setFetchingMore] = useState(false);
@@ -38,10 +46,16 @@ export default function PortfolioGrid({
   const [page, setPage] = useState(0);
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
   
+  // Sync filter when URL params change
+  useEffect(() => {
+    const category = searchParams.get('category') || "Latest";
+    setActiveFilter(category);
+  }, [searchParams]);
+
   // Track first mount so we don't re-fetch "Latest" immediately
   const isFirstMount = useRef(true);
 
-  const filters = ["Latest", "Trending", "Shorts"];
+  const filters = ["Latest", "Trending", "Shorts", ...categories.map(c => c.title)];
   const supabase = createClient();
 
   const fetchVideos = useCallback(async (filter: string, pageNum: number, isInitial: boolean) => {
@@ -61,6 +75,8 @@ export default function PortfolioGrid({
       query = query.eq('trending', true);
     } else if (filter === "Shorts") {
       query = query.ilike('link', '%/shorts/%');
+    } else if (filter !== "Latest") {
+      query = query.eq('category', filter);
     }
 
     const { data, count } = await query;
@@ -114,17 +130,34 @@ export default function PortfolioGrid({
   return (
     <>
       {/* Filters */}
-      <div className="flex flex-wrap justify-center gap-4 mb-12 mt-12">
-        {filters.map((filter) => (
-          <button
-            key={filter}
-            onClick={() => setActiveFilter(filter)}
-            className={`px-6 py-2 rounded-full font-medium text-sm transition-colors ${activeFilter === filter ? "bg-primary-600 text-white" : "bg-white/5 text-gray-300 hover:bg-white/10"
+      <div className="relative w-full max-w-full mb-12 mt-12 group">
+        {/* Fading Edges for better UX to indicate scroll */}
+        <div className="absolute left-0 top-0 bottom-0 w-8 md:w-16 bg-gradient-to-r from-[#111] to-transparent pointer-events-none z-10" />
+        <div className="absolute right-0 top-0 bottom-0 w-8 md:w-16 bg-gradient-to-l from-[#111] to-transparent pointer-events-none z-10" />
+        
+        <div className="flex overflow-x-auto hide-scrollbar gap-3 md:gap-4 pb-4 snap-x px-4 md:px-8">
+          {filters.map((filter) => (
+            <button
+              key={filter}
+              onClick={() => {
+                const params = new URLSearchParams(searchParams.toString());
+                if (filter === "Latest") {
+                  params.delete('category');
+                } else {
+                  params.set('category', filter);
+                }
+                router.push(pathname + '?' + params.toString(), { scroll: false });
+              }}
+              className={`shrink-0 snap-start px-6 py-2.5 rounded-full font-medium text-sm transition-all border ${
+                activeFilter === filter 
+                  ? "bg-primary-600 border-primary-500 text-white shadow-[0_0_15px_rgba(210,27,46,0.4)]" 
+                  : "bg-white/5 border-white/5 text-gray-300 hover:bg-white/10 hover:border-white/10"
               }`}
-          >
-            {filter}
-          </button>
-        ))}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="w-full animate-fade-in-up">

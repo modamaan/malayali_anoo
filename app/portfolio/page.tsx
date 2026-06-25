@@ -1,5 +1,6 @@
 import PortfolioGrid from "@/components/PortfolioGrid";
 import { createClient } from "@/lib/supabase/server";
+import { Suspense } from "react";
 
 export const metadata = {
   title: 'Portfolio | Malayali Aaanoo',
@@ -18,6 +19,9 @@ export default async function PortfolioPage() {
 
   const hasMore = count !== null ? (initialVideos?.length || 0) < count : false;
 
+  const { data: categoriesData } = await supabase.from('video_categories').select('title').order('sort_order');
+  const categories = categoriesData || [];
+
   return (
     <div className="flex flex-col min-h-screen pt-12 pb-24 overflow-hidden">
       <section className="relative py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full text-center">
@@ -30,7 +34,9 @@ export default async function PortfolioPage() {
         </p>
 
         {/* Client Component handles interactivity, filtering, and pagination */}
-        <PortfolioGrid initialVideos={initialVideos || []} initialHasMore={hasMore} />
+        <Suspense fallback={<div className="py-20 text-center text-gray-400">Loading videos...</div>}>
+          <PortfolioGrid initialVideos={initialVideos || []} initialHasMore={hasMore} categories={categories} />
+        </Suspense>
         
       </section>
     </div>
