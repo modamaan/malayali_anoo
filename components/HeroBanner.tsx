@@ -63,7 +63,7 @@ export default function HeroBanner({ banners }: { banners: Banner[] }) {
   // Auto-slide effect
   useEffect(() => {
     if (!banners || banners.length <= 1) return;
-    
+
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % banners.length);
     }, 5000); // Change slides every 5 seconds
@@ -91,9 +91,8 @@ export default function HeroBanner({ banners }: { banners: Banner[] }) {
         return (
           <div
             key={banner.id}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              isActive ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
-            }`}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${isActive ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+              }`}
           >
             {/* Background Image / Video */}
             <div className="absolute inset-0 bg-black">
@@ -185,16 +184,15 @@ export default function HeroBanner({ banners }: { banners: Banner[] }) {
           <button
             key={index}
             onClick={() => setCurrentIndex(index)}
-            className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all ${
-              index === currentIndex ? "bg-primary-500 scale-125" : "bg-white/50 hover:bg-white/80"
-            }`}
+            className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all ${index === currentIndex ? "bg-primary-500 scale-125" : "bg-white/50 hover:bg-white/80"
+              }`}
             aria-label={`Go to banner ${index + 1}`}
           />
         ))}
       </div>
 
       {/* Scroll Down Indicator */}
-      <button 
+      <button
         onClick={() => window.scrollBy({ top: window.innerHeight * 0.75, behavior: 'smooth' })}
         className="absolute bottom-3 md:bottom-3 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center group cursor-pointer"
         aria-label="Scroll down to explore more"

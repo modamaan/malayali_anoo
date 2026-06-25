@@ -42,11 +42,11 @@ export default function Navbar() {
 
   const baseLinks = [
     { name: "Home", href: "/" },
-    { name: "About Us", href: "/about" },
-    { name: "Portfolio", href: "/portfolio" },
+    { name: "Videos", href: "/portfolio" },
     { name: "Events", href: "/events" },
     { name: "Shop", href: "/shop" },
     { name: "Sponsors", href: "/sponsors" },
+    { name: "About Us", href: "/about" },
     { name: "Contact", href: "/contact" },
   ];
 
@@ -102,8 +102,7 @@ export default function Navbar() {
                   <Link
                     key={link.name}
                     href={link.href}
-                    className={`relative px-2 py-2 text-sm font-medium uppercase tracking-widest transition-colors group whitespace-nowrap ${
-                        isActive ? "text-white" : "text-gray-300 hover:text-white"
+                    className={`relative px-2 py-2 text-sm font-medium uppercase tracking-widest transition-colors group whitespace-nowrap ${isActive ? "text-white" : "text-gray-300 hover:text-white"
                       }`}
                   >
                     {link.name}
@@ -124,9 +123,9 @@ export default function Navbar() {
               className="relative p-2 text-gray-300 hover:text-white transition-colors"
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
-                <line x1="3" y1="6" x2="21" y2="6"/>
-                <path d="M16 10a4 4 0 01-8 0"/>
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <path d="M16 10a4 4 0 01-8 0" />
               </svg>
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-primary-500 text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center">
@@ -168,8 +167,7 @@ export default function Navbar() {
                   key={link.name}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block px-4 py-3 text-base font-medium uppercase tracking-widest text-center transition-colors group ${
-                    isActive ? "text-white" : isAdminLink ? "text-primary-500 font-bold hover:text-primary-400" : "text-gray-300 hover:text-white"
+                  className={`block px-4 py-3 text-base font-medium uppercase tracking-widest text-center transition-colors group ${isActive ? "text-white" : isAdminLink ? "text-primary-500 font-bold hover:text-primary-400" : "text-gray-300 hover:text-white"
                     }`}
                 >
                   <span className="relative inline-block pb-1">
