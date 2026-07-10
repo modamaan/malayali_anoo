@@ -47,6 +47,16 @@ export async function deleteGalleryItem(id: string) {
   await revalidateSite()
 }
 
+export async function updateGalleryItemCaption(id: string, title: string) {
+  const supabase = await requireAdmin()
+  const { error } = await supabase.from('gallery').update({ title }).eq('id', id)
+  if (error) throw new Error(error.message)
+  
+  revalidatePath('/admin/gallery')
+  revalidatePath('/gallery')
+  await revalidateSite()
+}
+
 export async function reorderGallery(updates: { id: string, sort_order: number }[]) {
   const supabase = await requireAdmin()
   

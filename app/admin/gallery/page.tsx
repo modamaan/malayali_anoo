@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { addGalleryItem, deleteGalleryItem, reorderGallery } from '@/app/actions/gallery'
+import { addGalleryItem, deleteGalleryItem, reorderGallery, updateGalleryItemCaption } from '@/app/actions/gallery'
 import Image from 'next/image'
 
 export default function AdminGallery() {
@@ -18,6 +18,9 @@ export default function AdminGallery() {
   // Form State
   const [title, setTitle] = useState('')
   const [imageFiles, setImageFiles] = useState<File[]>([])
+  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 })
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editTitle, setEditTitle] = useState('')
 
   useEffect(() => {
     fetchItems()
@@ -66,18 +69,23 @@ export default function AdminGallery() {
     setIsAdding(true)
 
     try {
+      setUploadProgress({ current: 0, total: imageFiles.length })
+      
       let currentSortOrder = items.length > 0
         ? Math.max(...items.map(c => c.sort_order))
         : 0
 
-      for (const file of imageFiles) {
+      for (let i = 0; i < imageFiles.length; i++) {
+        const file = imageFiles[i]
         const imageUrl = await uploadImage(file)
         currentSortOrder += 1
         await addGalleryItem(title, imageUrl, currentSortOrder)
+        setUploadProgress({ current: i + 1, total: imageFiles.length })
       }
 
       setTitle('')
       setImageFiles([])
+      setUploadProgress({ current: 0, total: 0 })
       
       // Reset file input
       const form = e.target as HTMLFormElement
@@ -109,6 +117,16 @@ export default function AdminGallery() {
       alert("Error deleting photo: " + error.message)
     } finally {
       setIsDeleting(null)
+    }
+  }
+
+  const handleSaveEdit = async (id: string) => {
+    try {
+      await updateGalleryItemCaption(id, editTitle)
+      setEditingId(null)
+      fetchItems()
+    } catch (err: any) {
+      alert("Error updating caption: " + err.message)
     }
   }
 
@@ -190,6 +208,18 @@ export default function AdminGallery() {
             >
               {isAdding ? 'Uploading...' : 'Upload Photos'}
             </button>
+
+            {isAdding && uploadProgress.total > 0 && (
+              <div className="w-full bg-white/10 rounded-full h-2 mt-4">
+                <div 
+                  className="bg-primary-500 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
+                />
+                <p className="text-xs text-gray-400 mt-2 text-center">
+                  Uploading {uploadProgress.current} of {uploadProgress.total}...
+                </p>
+              </div>
+            )}
           </form>
         </div>
       </section>
@@ -264,17 +294,43 @@ export default function AdminGallery() {
                 </div>
                 
                 <div className="p-3 flex flex-col flex-grow bg-white/5">
-                  <p className="text-sm font-medium text-white mb-2 truncate">
-                    {item.title || <span className="text-gray-500 italic">No caption</span>}
-                  </p>
+                  {editingId === item.id ? (
+                    <div className="mb-2 flex flex-col gap-2">
+                      <input 
+                        type="text" 
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        placeholder="New caption..."
+                        className="w-full bg-black/30 border border-white/20 rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-primary-500"
+                        autoFocus
+                      />
+                      <div className="flex gap-2">
+                        <button onClick={() => handleSaveEdit(item.id)} className="flex-1 text-xs bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded transition-colors">Save</button>
+                        <button onClick={() => setEditingId(null)} className="flex-1 text-xs bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded transition-colors">Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm font-medium text-white mb-2 truncate group-hover:whitespace-normal">
+                      {item.title || <span className="text-gray-500 italic">No caption</span>}
+                    </p>
+                  )}
                   
-                  <button
-                    onClick={() => handleDeleteItem(item.id, item.image_url)}
-                    disabled={isDeleting === item.id || isPending}
-                    className="w-full py-1.5 mt-auto bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white text-xs font-bold rounded transition-colors disabled:opacity-50"
-                  >
-                    {isDeleting === item.id ? 'Deleting...' : 'Delete'}
-                  </button>
+                  <div className="grid grid-cols-2 gap-2 mt-auto">
+                    <button
+                      onClick={() => { setEditingId(item.id); setEditTitle(item.title || '') }}
+                      disabled={isDeleting === item.id || isPending || editingId === item.id}
+                      className="w-full py-1.5 bg-blue-500/20 hover:bg-blue-500 text-blue-500 hover:text-white text-xs font-bold rounded transition-colors disabled:opacity-50"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteItem(item.id, item.image_url)}
+                      disabled={isDeleting === item.id || isPending}
+                      className="w-full py-1.5 bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white text-xs font-bold rounded transition-colors disabled:opacity-50"
+                    >
+                      {isDeleting === item.id ? 'Deleting...' : 'Delete'}
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
