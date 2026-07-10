@@ -103,7 +103,7 @@ export default function InvitePage() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="max-w-md w-full glass p-8 rounded-2xl border border-white/10 shadow-2xl">
         <h1 className="text-3xl font-heading font-black text-white mb-2 text-center">Create Account</h1>
-        <p className="text-gray-400 text-center text-sm mb-8">Join the Malayali Aano community</p>
+        <p className="text-gray-400 text-center text-sm mb-8">Join the Malayali Aaanoo community</p>
         
         <Suspense fallback={<div className="text-center text-gray-500">Loading...</div>}>
           <InviteForm />

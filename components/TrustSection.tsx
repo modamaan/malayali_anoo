@@ -1,13 +1,13 @@
 import MarqueeRow from "./MarqueeRow";
 import { TRUST_STATS } from "@/lib/data";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 
 /**
  * Premium trust / partners section.
  * Data is driven entirely by TRUST_STATS in lib/data.ts and dynamically fetched sponsors from the database.
  */
 export default async function TrustSection() {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data: sponsors } = await supabase
     .from("sponsors")
     .select("*")

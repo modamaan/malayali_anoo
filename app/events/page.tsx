@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import ImageCarousel from "@/components/ImageCarousel";
 import { createClient } from "@/lib/supabase/client";
 
@@ -39,10 +40,10 @@ export default function EventsPage() {
   const filteredEvents = events.filter(event => {
     // Set time to 00:00:00 to only compare dates
     const eventDate = new Date(event.date);
-    eventDate.setHours(0,0,0,0);
+    eventDate.setHours(0, 0, 0, 0);
     const today = new Date();
-    today.setHours(0,0,0,0);
-    
+    today.setHours(0, 0, 0, 0);
+
     if (activeFilter === "Upcoming") {
       return eventDate >= today;
     } else {
@@ -59,14 +60,14 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen pt-4 pb-24">
-      <section className="relative pt-10 pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full text-center">
-        <h1 className="text-5xl md:text-7xl font-heading font-black tracking-tighter mb-4">
+    <div className="flex flex-col min-h-screen pt-24 pb-24">
+      <section className="relative pt-8 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full text-center">
+        <h1 className="text-5xl md:text-7xl font-heading font-black tracking-tighter mb-6">
           <span className="text-white uppercase">{activeFilter} </span>
           <span className="text-primary-500">EVENTS</span>
         </h1>
         <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-light mb-8">
-          {activeFilter === "Upcoming" 
+          {activeFilter === "Upcoming"
             ? "Experience the energy live. Join us at our next big event."
             : "Take a look back at our memorable past events."}
         </p>
@@ -74,12 +75,11 @@ export default function EventsPage() {
         {/* Filters */}
         <div className="flex flex-wrap justify-center gap-4 mb-8">
           {filters.map((filter) => (
-            <button 
-              key={filter} 
+            <button
+              key={filter}
               onClick={() => setActiveFilter(filter)}
-              className={`px-6 py-2 rounded-full font-medium text-sm transition-colors ${
-                activeFilter === filter ? "bg-primary-600 text-white" : "bg-white/5 text-gray-300 hover:bg-white/10"
-              }`}
+              className={`px-6 py-2 rounded-full font-medium text-sm transition-colors ${activeFilter === filter ? "bg-primary-600 text-white" : "bg-white/5 text-gray-300 hover:bg-white/10"
+                }`}
             >
               {filter}
             </button>
@@ -87,69 +87,72 @@ export default function EventsPage() {
         </div>
       </section>
 
-      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full min-h-[400px]">
+      <section className="px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full min-h-[400px]">
         {filteredEvents.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             {filteredEvents.map((event) => (
-            <div key={event.id} className="glass rounded-2xl overflow-hidden group hover:border-primary-500/50 transition-colors flex flex-col h-full">
-              <div className="h-64 relative overflow-hidden">
-                {/* @ts-ignore */}
-                {event.images && event.images.length > 0 ? (
-                  /* @ts-ignore */
-                  <ImageCarousel images={event.images} alt={event.title} />
-                ) : (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img
-                    src={event.imageUrl}
-                    alt={event.title}
-                    className="w-full h-full object-contain bg-black transform group-hover:scale-105 transition-transform duration-700"
-                  />
-                )}
-                <div className="absolute top-4 left-4 z-30 bg-primary-600 text-white px-4 py-2 rounded-lg font-bold shadow-lg backdrop-blur-sm text-center">
-                  <div className="text-xs uppercase tracking-wider">{new Date(event.date).toLocaleString('default', { month: 'short' })}</div>
-                  <div className="text-2xl leading-none">{new Date(event.date).getDate()}</div>
-                </div>
-              </div>
-
-              <div className="p-8 flex flex-col flex-grow">
-                <div className="flex flex-col gap-2 mb-4 text-sm text-gray-400">
-                  <div className="flex items-center">
-                    <svg className="w-4 h-4 mr-2 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                    <span>
-                      {new Date(event.date).toLocaleDateString('en-GB', { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' })}
-                      {/* @ts-ignore */}
-                      {event.time && ` • ${event.time}`}
-                    </span>
-                  </div>
-                  <div className="flex items-center">
-                    <svg className="w-4 h-4 mr-2 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                    <span>{event.location}</span>
-                  </div>
-                </div>
-
-                {/* @ts-ignore */}
-                {event.price && (
-                  <p className="text-primary-500 font-bold mb-4">{/* @ts-ignore */}{event.price}</p>
-                )}
-                <h3 className="text-3xl font-bold text-white mb-4">{event.title}</h3>
-                <p className="text-gray-300 mb-8 flex-grow">{event.description}</p>
-
-                {/* @ts-ignore */}
-                {event.ticket_link && (
-                  <Link
+              <div key={event.id} className="glass rounded-2xl overflow-hidden group hover:border-primary-500/50 transition-colors flex flex-col h-full">
+                <div className="h-64 relative overflow-hidden">
+                  {/* @ts-ignore */}
+                  {event.images && event.images.length > 0 ? (
                     /* @ts-ignore */
-                    href={event.ticket_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-full py-4 text-center bg-white/10 hover:bg-primary-600 text-white font-bold rounded-xl transition-colors"
-                  >
-                    Get Tickets / Register
-                  </Link>
-                )}
+                    <ImageCarousel images={event.images} alt={event.title} />
+                  ) : (
+                    <div className="relative w-full h-full overflow-hidden bg-black">
+                      <Image
+                        src={event.imageUrl}
+                        alt={event.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-contain transform group-hover:scale-105 transition-transform duration-700"
+                      />
+                    </div>
+                  )}
+                  <div className="absolute top-4 left-4 z-30 bg-primary-600 text-white px-4 py-2 rounded-lg font-bold shadow-lg backdrop-blur-sm text-center">
+                    <div className="text-xs uppercase tracking-wider">{new Date(event.date).toLocaleString('default', { month: 'short' })}</div>
+                    <div className="text-2xl leading-none">{new Date(event.date).getDate()}</div>
+                  </div>
+                </div>
+
+                <div className="p-8 flex flex-col flex-grow">
+                  <div className="flex flex-col gap-2 mb-4 text-sm text-gray-400">
+                    <div className="flex items-center">
+                      <svg className="w-4 h-4 mr-2 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                      <span>
+                        {new Date(event.date).toLocaleDateString('en-GB', { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' })}
+                        {/* @ts-ignore */}
+                        {event.time && ` • ${event.time}`}
+                      </span>
+                    </div>
+                    <div className="flex items-center">
+                      <svg className="w-4 h-4 mr-2 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                      <span>{event.location}</span>
+                    </div>
+                  </div>
+
+                  {/* @ts-ignore */}
+                  {event.price && (
+                    <p className="text-primary-500 font-bold mb-4">{/* @ts-ignore */}{event.price}</p>
+                  )}
+                  <h3 className="text-3xl font-bold text-white mb-4">{event.title}</h3>
+                  <p className="text-gray-300 mb-8 flex-grow">{event.description}</p>
+
+                  {/* @ts-ignore */}
+                  {event.ticket_link && (
+                    <Link
+                      /* @ts-ignore */
+                      href={event.ticket_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full py-4 text-center bg-white/10 hover:bg-primary-600 text-white font-bold rounded-xl transition-colors"
+                    >
+                      Get Tickets / Register
+                    </Link>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
         ) : (
           <div className="text-center py-20">
             <p className="text-gray-400 text-lg md:text-xl">No {activeFilter.toLowerCase()} events found.</p>

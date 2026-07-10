@@ -40,6 +40,12 @@ export default function AdminNav() {
               Manage Banners
             </Link> */}
           <Link
+            href="/admin/gallery"
+            className={`pb-4 border-b-2 font-medium transition-colors ${pathname === '/admin/gallery' ? 'border-primary-500 text-white' : 'border-transparent text-gray-400 hover:text-white'}`}
+          >
+            Manage Gallery
+          </Link>
+          <Link
             href="/admin/events"
             className={`pb-4 border-b-2 font-medium transition-colors ${pathname === '/admin/events' ? 'border-primary-500 text-white' : 'border-transparent text-gray-400 hover:text-white'}`}
           >

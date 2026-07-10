@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { revalidateSite } from '@/app/actions/revalidate'
 
 type Banner = {
   id: string
@@ -67,6 +68,7 @@ export default function AdminBannersPage() {
     } else {
       setFormData({ title: '', subtitle: '', link: '' })
       fetchBanners()
+      await revalidateSite()
     }
     
     setIsAdding(false)
@@ -103,6 +105,7 @@ export default function AdminBannersPage() {
       
       await Promise.all(updates)
       fetchBanners()
+      await revalidateSite()
     } catch (error: any) {
       alert("Error reordering: " + error.message)
     } finally {
@@ -124,6 +127,7 @@ export default function AdminBannersPage() {
       alert('Error deleting banner: ' + error.message)
     } else {
       fetchBanners()
+      await revalidateSite()
     }
     
     setIsDeleting(null)

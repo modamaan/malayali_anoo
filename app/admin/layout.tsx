@@ -28,7 +28,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   // Authorized! Return the layout.
   return (
-    <div className="flex flex-col min-h-screen pb-24">
+    <div className="flex flex-col min-h-screen pt-20 pb-24">
       <AdminNav />
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
         {children}

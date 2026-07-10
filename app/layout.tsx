@@ -28,7 +28,7 @@ export default function RootLayout({
         <CartProvider>
           <Navbar />
           <CartDrawer />
-          <main className="flex-grow flex flex-col pt-20">
+          <main className="flex-grow flex flex-col pt-7">
             {children}
           </main>
           <Footer />

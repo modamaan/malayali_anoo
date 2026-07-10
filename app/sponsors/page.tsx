@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function SponsorsPage() {
@@ -8,8 +9,8 @@ export default async function SponsorsPage() {
     .select("*")
     .order("created_at", { ascending: true });
   return (
-    <div className="flex flex-col min-h-screen pt-12 pb-24">
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full text-center">
+    <div className="flex flex-col min-h-screen pt-24 pb-24">
+      <section className="relative pt-8 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full text-center">
         <h1 className="text-5xl md:text-7xl font-heading font-black tracking-tighter mb-6">
           <span className="text-white">OUR </span>
           <span className="text-primary-500">SPONSORS</span>
@@ -29,12 +30,16 @@ export default async function SponsorsPage() {
               rel={sponsor.website ? "noopener noreferrer" : undefined}
               className="group flex items-center justify-center w-full aspect-[2/1] bg-[#1a1a1d] border border-white/10 rounded-2xl hover:border-primary-500/50 hover:bg-white/5 transition-all duration-300 p-8 hover:shadow-[0_8px_30px_rgba(210,27,46,0.1)]"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={sponsor.logo_url}
-                alt={sponsor.name}
-                className="max-w-[140px] md:max-w-[180px] max-h-[80px] object-contain transition-all duration-300 group-hover:scale-105"
-              />
+              <div className="relative w-full aspect-[4/3]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <Image
+                  src={sponsor.logo_url}
+                  alt={sponsor.name}
+                  fill
+                  sizes="(max-width: 768px) 50vw, 33vw"
+                  className="object-contain p-6 transition-transform duration-500 group-hover:scale-105"
+                />
+              </div>
             </a>
           ))}
         </div>

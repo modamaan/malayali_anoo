@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { revalidateSite } from '@/app/actions/revalidate'
 
 type Video = {
   id: string
@@ -92,6 +93,7 @@ export default function AdminPortfolioPage() {
         category: categories.length > 0 ? categories[0].title : 'Others',
       })
       fetchVideosAndCategories()
+      await revalidateSite()
     } else {
       alert('Error adding video: ' + error.message)
     }
@@ -109,6 +111,7 @@ export default function AdminPortfolioPage() {
 
     if (!error) {
       fetchVideosAndCategories()
+      await revalidateSite()
     } else {
       alert('Error deleting video: ' + error.message)
     }

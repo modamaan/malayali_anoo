@@ -3,35 +3,34 @@ import IntroSplashScreen from "@/components/IntroSplashScreen";
 import VideoRow from "@/components/VideoRow";
 import TrustSection from "@/components/TrustSection";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
+
+// Revalidate this page every hour (3600 seconds)
+export const revalidate = 3600;
 
 export default async function Home() {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   
-  // Fetch categories, videos, and banners
-  const [categoriesResponse, videosResponse, bannersResponse] = await Promise.all([
+  // Fetch categories, videos, banners, and events in parallel
+  const [categoriesResponse, videosResponse, bannersResponse, eventsResponse] = await Promise.all([
     supabase.from("video_categories").select("*").order("sort_order", { ascending: true }),
-    supabase.from("portfolio_videos").select("*").order("date", { ascending: false }),
-    supabase.from("hero_banners").select("*").order("sort_order", { ascending: true })
+    supabase.from("portfolio_videos").select("*").order("date", { ascending: false }).limit(100),
+    supabase.from("hero_banners").select("*").order("sort_order", { ascending: true }),
+    supabase.from("events").select("*").order("date", { ascending: true }).limit(3)
   ]);
     
   const categories = categoriesResponse.data || [];
   const videos = videosResponse.data || [];
   const banners = bannersResponse.data || [];
+  const events = eventsResponse.data || [];
   
   // Group videos by category
   const videoRows = categories.map(cat => ({
     title: cat.title,
     subtitle: cat.subtitle,
-    videos: videos.filter(v => (v.category || 'Others') === cat.title),
+    videos: videos.filter(v => (v.category || 'Others') === cat.title).slice(0, 15), // Show max 15 per row
     linkHref: "/portfolio"
   }));
-
-  const { data: events } = await supabase
-    .from("events")
-    .select("*")
-    .order("date", { ascending: true })
-    .limit(3);
 
   return (
     <div className="flex flex-col min-h-screen">

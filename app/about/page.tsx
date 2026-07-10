@@ -3,9 +3,9 @@ import Link from "next/link";
 
 export default function AboutPage() {
   return (
-    <div className="flex flex-col min-h-screen pt-12 pb-24">
+    <div className="flex flex-col min-h-screen pt-24 pb-24">
       {/* Hero Section */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full text-center">
+      <section className="relative pt-8 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full text-center">
         <h1 className="text-5xl md:text-7xl font-heading font-black tracking-tighter mb-6">
           <span className="text-white">ABOUT </span>
           <span className="text-primary-500">US</span>
@@ -23,8 +23,8 @@ export default function AboutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border-2 md:border-4 border-gray-700 shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:border-gray-500 hover:shadow-[0_0_30px_rgba(255,255,255,0.05)] transition-all duration-500 group">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src="/about_us_image_1.png" 
+            <img
+              src="/about_us_image_1.png"
               alt="Our Team"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
@@ -40,7 +40,7 @@ export default function AboutPage() {
                 Our mission is simple: to keep the essence of Kerala alive across borders. From thought-provoking podcasts and interviews to massive community gatherings, we create content that feels like home.
               </p>
             </div>
-            
+
             <div className="mt-10 grid grid-cols-2 gap-8">
               <div>
                 <h4 className="text-4xl font-black text-primary-500 font-heading mb-2">50+</h4>
@@ -54,7 +54,7 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-      
+
       {/* CTA */}
       <section className="mt-20 py-24 bg-primary-600 text-center px-4">
         <h2 className="text-4xl md:text-5xl font-heading font-black text-white mb-8">Ready to create something amazing?</h2>

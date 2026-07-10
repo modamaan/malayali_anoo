@@ -1,8 +1,8 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { revalidatePath } from 'next/cache'
 import { revalidateSite } from '@/app/actions/revalidate'
+import { revalidatePath } from 'next/cache'
 
 // ─── Auth Guard ────────────────────────────────────────────────────────────────
 async function requireAdmin() {
@@ -22,34 +22,41 @@ async function requireAdmin() {
 
 // ─── Actions ───────────────────────────────────────────────────────────────────
 
-export async function addCategory(title: string, subtitle: string, sort_order: number) {
+export async function addGalleryItem(title: string, imageUrl: string, sortOrder: number) {
   const supabase = await requireAdmin()
-  const { error } = await supabase.from('video_categories').insert([{ title, subtitle, sort_order }])
+  const { error } = await supabase.from('gallery').insert([{ 
+    title, 
+    image_url: imageUrl, 
+    sort_order: sortOrder 
+  }])
+  
   if (error) throw new Error(error.message)
   
-  revalidatePath('/admin/categories')
+  revalidatePath('/admin/gallery')
+  revalidatePath('/gallery')
   await revalidateSite()
 }
 
-export async function deleteCategory(id: string) {
+export async function deleteGalleryItem(id: string) {
   const supabase = await requireAdmin()
-  const { error } = await supabase.from('video_categories').delete().eq('id', id)
+  const { error } = await supabase.from('gallery').delete().eq('id', id)
   if (error) throw new Error(error.message)
   
-  revalidatePath('/admin/categories')
+  revalidatePath('/admin/gallery')
+  revalidatePath('/gallery')
   await revalidateSite()
 }
 
-export async function reorderCategories(updates: { id: string, sort_order: number }[]) {
+export async function reorderGallery(updates: { id: string, sort_order: number }[]) {
   const supabase = await requireAdmin()
   
-  // Update all categories in parallel
   const promises = updates.map(update => 
-    supabase.from('video_categories').update({ sort_order: update.sort_order }).eq('id', update.id)
+    supabase.from('gallery').update({ sort_order: update.sort_order }).eq('id', update.id)
   )
   
   await Promise.all(promises)
   
-  revalidatePath('/admin/categories')
+  revalidatePath('/admin/gallery')
+  revalidatePath('/gallery')
   await revalidateSite()
 }

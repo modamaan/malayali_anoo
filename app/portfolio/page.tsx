@@ -1,6 +1,8 @@
 import PortfolioGrid from "@/components/PortfolioGrid";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import { Suspense } from "react";
+
+export const revalidate = 3600; // Cache for 1 hour
 
 export const metadata = {
   title: 'Portfolio | Malayali Aaanoo',
@@ -8,9 +10,9 @@ export const metadata = {
 }
 
 export default async function PortfolioPage() {
-  const supabase = await createClient();
-  
-  // Fetch initial 12 videos securely on the server
+  const supabase = createPublicClient();
+
+  // Fetch initial videos and categories on server (first page only)
   const { data: initialVideos, count } = await supabase
     .from('portfolio_videos')
     .select('*', { count: 'exact' })
@@ -23,8 +25,8 @@ export default async function PortfolioPage() {
   const categories = categoriesData || [];
 
   return (
-    <div className="flex flex-col min-h-screen pt-12 pb-24 overflow-hidden">
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full text-center">
+    <div className="flex flex-col min-h-screen pt-24 pb-24 overflow-hidden">
+      <section className="relative pt-8 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full text-center">
         <h1 className="text-5xl md:text-7xl font-heading font-black tracking-tighter mb-6">
           <span className="text-white">OUR </span>
           <span className="text-primary-500">WORK</span>
@@ -37,7 +39,7 @@ export default async function PortfolioPage() {
         <Suspense fallback={<div className="py-20 text-center text-gray-400">Loading videos...</div>}>
           <PortfolioGrid initialVideos={initialVideos || []} initialHasMore={hasMore} categories={categories} />
         </Suspense>
-        
+
       </section>
     </div>
   );

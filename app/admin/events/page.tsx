@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { revalidateSite } from '@/app/actions/revalidate'
 
 export default function AdminEvents() {
   const [events, setEvents] = useState<any[]>([])
@@ -107,8 +108,8 @@ export default function AdminEvents() {
       // Reset file inputs visually by resetting the form
       const form = e.target as HTMLFormElement;
       form.reset();
-      
       fetchEvents()
+      await revalidateSite()
     } catch (err: any) {
       alert("Error adding event: " + err.message)
     } finally {
@@ -126,6 +127,7 @@ export default function AdminEvents() {
       alert("Error deleting event: " + error.message)
     } else {
       setEvents(events.filter(e => e.id !== id))
+      await revalidateSite()
     }
     setIsDeleting(null)
   }
