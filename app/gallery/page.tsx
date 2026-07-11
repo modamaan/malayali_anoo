@@ -16,11 +16,17 @@ export default async function GalleryPage() {
     .select("*")
     .order("sort_order", { ascending: true })
 
+  const { data: categoriesData } = await supabase
+    .from("video_categories")
+    .select("id, title")
+    .order("sort_order", { ascending: true })
+
   if (error) {
     console.error("Error fetching gallery:", error.message)
   }
 
   const items = gallery || []
+  const categories = categoriesData || []
 
   return (
     <div className="min-h-screen pt-24 pb-20">
@@ -42,7 +48,7 @@ export default async function GalleryPage() {
       </section>
 
       {/* Gallery Grid */}
-      <ExpandableGallery photos={items} />
+      <ExpandableGallery photos={items} categories={categories} />
     </div>
   )
 }

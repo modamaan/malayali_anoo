@@ -12,10 +12,12 @@ interface GalleryPhoto {
   id: string;
   image_url: string;
   title: string | null;
+  category_id?: string | null;
 }
 
 interface ExpandableGalleryProps {
   photos: GalleryPhoto[];
+  categories?: { id: string, title: string }[];
 }
 
 const transition = {
@@ -25,7 +27,7 @@ const transition = {
   mass: 1,
 } as const;
 
-export function ExpandableGallery({ photos }: ExpandableGalleryProps) {
+export function ExpandableGallery({ photos, categories = [] }: ExpandableGalleryProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const layoutGroupId = useId();
@@ -96,100 +98,178 @@ export function ExpandableGallery({ photos }: ExpandableGalleryProps) {
             className={cn(
               "relative w-full",
               isExpanded
-                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 px-4"
+                ? "flex flex-col space-y-16 pt-8 px-4"
                 : "flex flex-col items-center justify-start pt-4"
             )}
             transition={transition}
           >
-            <div
-              className={cn(
-                "relative",
-                isExpanded
-                  ? "contents"
-                  : "h-[350px] md:h-[400px] w-full flex items-center justify-center mb-4 mt-8"
-              )}
-            >
-              {stackedPhotos.map((photo, index) => {
-                // In stacked view, only render the top 5 to prevent DOM bloat and messy stacking
-                const isPrimary = index < 5;
-                if (!isPrimary && !isExpanded) return null;
+            {isExpanded ? (
+              <div className="w-full flex flex-col space-y-16 pb-20">
+                {categories.map((category) => {
+                  const isOthersCategory = category.title.toLowerCase() === 'others';
+                  // Include uncategorized photos if this is the 'Others' category
+                  const catPhotos = stackedPhotos.filter(p => 
+                    p.category_id === category.id || (isOthersCategory && !p.category_id)
+                  );
+                  if (catPhotos.length === 0) return null;
 
-                return (
-                  <motion.div
-                    key={`card-${photo.id}`}
-                    layoutId={`card-container-${photo.id}`}
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{
-                      opacity: 1,
-                      scale: 1,
-                      rotate: !isExpanded ? photo.rotation : 0,
-                      x: !isExpanded ? photo.x : 0,
-                      y: !isExpanded ? photo.y : 0,
-                      zIndex: !isExpanded ? photo.zIndex : 10,
-                    }}
-                    transition={transition}
-                    whileHover={
-                      !isExpanded
-                        ? {
-                            scale: 1.05,
-                            y: photo.y - 15,
-                            rotate: photo.rotation * 0.8,
-                            zIndex: 150,
-                            transition: {
-                              type: "spring",
-                              stiffness: 400,
-                              damping: 25,
-                            },
-                          }
-                        : { scale: 1.02 }
-                    }
-                    className={cn(
-                      "cursor-pointer overflow-hidden glass",
-                      isExpanded
-                        ? "relative aspect-square rounded-xl border border-white/10 shadow-lg group"
-                        : "absolute w-56 h-56 md:w-72 md:h-72 rounded-2xl border-4 border-zinc-900 shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-                    )}
-                    onClick={() => {
-                      if (!isExpanded) {
-                        setIsExpanded(true);
-                      } else {
-                        setSelectedIndex(index);
-                      }
-                    }}
-                  >
-                    <motion.div
-                      layoutId={`image-inner-${photo.id}`}
-                      layout="position"
-                      className="w-full h-full relative"
-                      transition={transition}
+                  return (
+                    <div key={category.id} className="w-full">
+                      <motion.h3 
+                        layout 
+                        className="text-2xl md:text-3xl font-heading font-black text-white uppercase tracking-tight relative inline-block mb-8"
+                      >
+                        {category.title}
+                        <span className="absolute -bottom-2 left-0 w-12 h-1 bg-gradient-to-r from-primary-500 to-primary-600 rounded-full" />
+                      </motion.h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                        {catPhotos.map((photo, index) => {
+                          const globalIndex = stackedPhotos.findIndex(p => p.id === photo.id);
+                          const isPrimary = index < 5;
+                          return (
+                            <motion.div
+                              key={`card-${photo.id}`}
+                              layoutId={`card-container-${photo.id}`}
+                              layout
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1, rotate: 0, x: 0, y: 0, zIndex: 10 }}
+                              transition={transition}
+                              whileHover={{ scale: 1.02 }}
+                              className="cursor-pointer overflow-hidden glass relative aspect-square rounded-xl border border-white/10 shadow-lg group"
+                              onClick={() => setSelectedIndex(globalIndex)}
+                            >
+                              <motion.div
+                                layoutId={`image-inner-${photo.id}`}
+                                layout="position"
+                                className="w-full h-full relative"
+                                transition={transition}
+                              >
+                                <Image
+                                  src={photo.image_url}
+                                  alt={photo.title || "Gallery photo"}
+                                  fill
+                                  className="object-cover select-none pointer-events-none"
+                                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                  priority={isPrimary}
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5 text-left">
+                                  <h3 className="text-white font-bold text-xl drop-shadow-md">
+                                    {photo.title || "Gallery Image"}
+                                  </h3>
+                                </div>
+                              </motion.div>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Uncategorized Photos (Only if no "Others" category exists) */}
+                {stackedPhotos.filter(p => !p.category_id).length > 0 && !categories.some(c => c.title.toLowerCase() === 'others') && (
+                  <div className="w-full">
+                    <motion.h3 
+                      layout 
+                      className="text-2xl md:text-3xl font-heading font-black text-white uppercase tracking-tight relative inline-block mb-8"
                     >
-                      <Image
-                        src={photo.image_url}
-                        alt={photo.title || "Gallery photo"}
-                        fill
-                        className="object-cover select-none pointer-events-none"
-                        sizes={
-                          isExpanded
-                            ? "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            : "300px"
-                        }
-                        priority={isPrimary}
-                      />
+                      Other Photos
+                      <span className="absolute -bottom-2 left-0 w-12 h-1 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full" />
+                    </motion.h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                      {stackedPhotos.filter(p => !p.category_id).map((photo, index) => {
+                        const globalIndex = stackedPhotos.findIndex(p => p.id === photo.id);
+                        const isPrimary = index < 5;
+                        return (
+                          <motion.div
+                            key={`card-${photo.id}`}
+                            layoutId={`card-container-${photo.id}`}
+                            layout
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1, rotate: 0, x: 0, y: 0, zIndex: 10 }}
+                            transition={transition}
+                            whileHover={{ scale: 1.02 }}
+                            className="cursor-pointer overflow-hidden glass relative aspect-square rounded-xl border border-white/10 shadow-lg group"
+                            onClick={() => setSelectedIndex(globalIndex)}
+                          >
+                            <motion.div
+                              layoutId={`image-inner-${photo.id}`}
+                              layout="position"
+                              className="w-full h-full relative"
+                              transition={transition}
+                            >
+                              <Image
+                                src={photo.image_url}
+                                alt={photo.title || "Gallery photo"}
+                                fill
+                                className="object-cover select-none pointer-events-none"
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                priority={isPrimary}
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5 text-left">
+                                <h3 className="text-white font-bold text-xl drop-shadow-md">
+                                  {photo.title || "Gallery Image"}
+                                </h3>
+                              </div>
+                            </motion.div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="h-[350px] md:h-[400px] w-full flex items-center justify-center mb-4 mt-8 relative">
+                {stackedPhotos.map((photo, index) => {
+                  const isPrimary = index < 5;
+                  if (!isPrimary) return null;
 
-                      {/* Title overlay when expanded */}
-                      {isExpanded && (
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5 text-left">
-                          <h3 className="text-white font-bold text-xl drop-shadow-md">
-                            {photo.title || "Gallery Image"}
-                          </h3>
-                        </div>
-                      )}
+                  return (
+                    <motion.div
+                      key={`card-${photo.id}`}
+                      layoutId={`card-container-${photo.id}`}
+                      layout
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{
+                        opacity: 1,
+                        scale: 1,
+                        rotate: photo.rotation,
+                        x: photo.x,
+                        y: photo.y,
+                        zIndex: photo.zIndex,
+                      }}
+                      transition={transition}
+                      whileHover={{
+                        scale: 1.05,
+                        y: photo.y - 15,
+                        rotate: photo.rotation * 0.8,
+                        zIndex: 150,
+                        transition: { type: "spring", stiffness: 400, damping: 25 },
+                      }}
+                      className="absolute w-56 h-56 md:w-72 md:h-72 rounded-2xl border-4 border-zinc-900 shadow-[0_20px_50px_rgba(0,0,0,0.5)] cursor-pointer overflow-hidden glass"
+                      onClick={() => setIsExpanded(true)}
+                    >
+                      <motion.div
+                        layoutId={`image-inner-${photo.id}`}
+                        layout="position"
+                        className="w-full h-full relative"
+                        transition={transition}
+                      >
+                        <Image
+                          src={photo.image_url}
+                          alt={photo.title || "Gallery photo"}
+                          fill
+                          className="object-cover select-none pointer-events-none"
+                          sizes="300px"
+                          priority={isPrimary}
+                        />
+                      </motion.div>
                     </motion.div>
-                  </motion.div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
 
             <AnimatePresence>
               {!isExpanded && (

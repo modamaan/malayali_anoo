@@ -22,12 +22,13 @@ async function requireAdmin() {
 
 // ─── Actions ───────────────────────────────────────────────────────────────────
 
-export async function addGalleryItem(title: string, imageUrl: string, sortOrder: number) {
+export async function addGalleryItem(title: string, imageUrl: string, sortOrder: number, categoryId: string | null = null) {
   const supabase = await requireAdmin()
   const { error } = await supabase.from('gallery').insert([{ 
     title, 
     image_url: imageUrl, 
-    sort_order: sortOrder 
+    sort_order: sortOrder,
+    category_id: categoryId
   }])
   
   if (error) throw new Error(error.message)
@@ -47,9 +48,12 @@ export async function deleteGalleryItem(id: string) {
   await revalidateSite()
 }
 
-export async function updateGalleryItemCaption(id: string, title: string) {
+export async function updateGalleryItem(id: string, title: string, categoryId: string | null) {
   const supabase = await requireAdmin()
-  const { error } = await supabase.from('gallery').update({ title }).eq('id', id)
+  const { error } = await supabase.from('gallery').update({ 
+    title,
+    category_id: categoryId
+  }).eq('id', id)
   if (error) throw new Error(error.message)
   
   revalidatePath('/admin/gallery')

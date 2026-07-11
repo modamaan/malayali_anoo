@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useTransition } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { addGalleryItem, deleteGalleryItem, reorderGallery, updateGalleryItemCaption } from '@/app/actions/gallery'
+import { addGalleryItem, deleteGalleryItem, reorderGallery, updateGalleryItem } from '@/app/actions/gallery'
 import Image from 'next/image'
 
 export default function AdminGallery() {
   const [items, setItems] = useState<any[]>([])
+  const [categories, setCategories] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [isAdding, setIsAdding] = useState(false)
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
@@ -17,15 +18,34 @@ export default function AdminGallery() {
 
   // Form State
   const [title, setTitle] = useState('')
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('')
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 })
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState('')
+  const [editCategoryId, setEditCategoryId] = useState<string>('')
 
   useEffect(() => {
     fetchItems()
+    fetchCategories()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const fetchCategories = async () => {
+    const { data } = await supabase.from('video_categories').select('id, title').order('sort_order')
+    if (data) {
+      setCategories(data)
+      // Set default selected category to "Others" if it exists, otherwise first category
+      if (!selectedCategoryId) {
+        const othersCat = data.find((c: any) => c.title.toLowerCase() === 'others')
+        if (othersCat) {
+          setSelectedCategoryId(othersCat.id)
+        } else if (data.length > 0) {
+          setSelectedCategoryId(data[0].id)
+        }
+      }
+    }
+  }
 
   const fetchItems = async () => {
     setLoading(true)
@@ -79,11 +99,15 @@ export default function AdminGallery() {
         const file = imageFiles[i]
         const imageUrl = await uploadImage(file)
         currentSortOrder += 1
-        await addGalleryItem(title, imageUrl, currentSortOrder)
+        await addGalleryItem(title, imageUrl, currentSortOrder, selectedCategoryId || null)
         setUploadProgress({ current: i + 1, total: imageFiles.length })
       }
 
       setTitle('')
+      // Reset to default category
+      const othersCat = categories.find((c: any) => c.title.toLowerCase() === 'others')
+      setSelectedCategoryId(othersCat ? othersCat.id : (categories[0]?.id || ''))
+      
       setImageFiles([])
       setUploadProgress({ current: 0, total: 0 })
       
@@ -122,7 +146,7 @@ export default function AdminGallery() {
 
   const handleSaveEdit = async (id: string) => {
     try {
-      await updateGalleryItemCaption(id, editTitle)
+      await updateGalleryItem(id, editTitle, editCategoryId || null)
       setEditingId(null)
       fetchItems()
     } catch (err: any) {
@@ -177,7 +201,7 @@ export default function AdminGallery() {
           <h2 className="text-2xl font-bold text-white mb-6">Add Photo</h2>
           
           <form onSubmit={handleAddItem} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">Image Files *</label>
                 <input
@@ -188,6 +212,19 @@ export default function AdminGallery() {
                   className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-500 file:text-white hover:file:bg-primary-600"
                   required
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Category</label>
+                <select
+                  value={selectedCategoryId}
+                  onChange={(e) => setSelectedCategoryId(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+                  required
+                >
+                  {categories.map(c => (
+                    <option key={c.id} value={c.id} className="bg-gray-900 text-white">{c.title}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">Caption / Title (Optional)</label>
@@ -296,13 +333,22 @@ export default function AdminGallery() {
                 <div className="p-3 flex flex-col flex-grow bg-white/5">
                   {editingId === item.id ? (
                     <div className="mb-2 flex flex-col gap-2">
+                      <select
+                        value={editCategoryId}
+                        onChange={(e) => setEditCategoryId(e.target.value)}
+                        className="w-full bg-black/30 border border-white/20 rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-primary-500"
+                        required
+                      >
+                        {categories.map(c => (
+                          <option key={c.id} value={c.id} className="bg-gray-900 text-white">{c.title}</option>
+                        ))}
+                      </select>
                       <input 
                         type="text" 
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
                         placeholder="New caption..."
                         className="w-full bg-black/30 border border-white/20 rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-primary-500"
-                        autoFocus
                       />
                       <div className="flex gap-2">
                         <button onClick={() => handleSaveEdit(item.id)} className="flex-1 text-xs bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded transition-colors">Save</button>
@@ -310,14 +356,19 @@ export default function AdminGallery() {
                       </div>
                     </div>
                   ) : (
-                    <p className="text-sm font-medium text-white mb-2 truncate group-hover:whitespace-normal">
-                      {item.title || <span className="text-gray-500 italic">No caption</span>}
-                    </p>
+                    <div className="mb-2">
+                      <p className="text-sm font-medium text-white truncate group-hover:whitespace-normal">
+                        {item.title || <span className="text-gray-500 italic">No caption</span>}
+                      </p>
+                      <p className="text-xs text-primary-400 mt-1 truncate">
+                        {item.category_id ? categories.find(c => c.id === item.category_id)?.title || 'Unknown Category' : 'Uncategorized'}
+                      </p>
+                    </div>
                   )}
                   
                   <div className="grid grid-cols-2 gap-2 mt-auto">
                     <button
-                      onClick={() => { setEditingId(item.id); setEditTitle(item.title || '') }}
+                      onClick={() => { setEditingId(item.id); setEditTitle(item.title || ''); setEditCategoryId(item.category_id || '') }}
                       disabled={isDeleting === item.id || isPending || editingId === item.id}
                       className="w-full py-1.5 bg-blue-500/20 hover:bg-blue-500 text-blue-500 hover:text-white text-xs font-bold rounded transition-colors disabled:opacity-50"
                     >
