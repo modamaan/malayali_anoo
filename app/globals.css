@@ -3,6 +3,7 @@
 @theme {
   --font-sans: var(--font-inter);
   --font-heading: var(--font-outfit);
+  --font-handwriting: var(--font-caveat);
 
   --color-primary-500: #e51e33;
   --color-primary-600: #d21b2e; /* Logo Red */
