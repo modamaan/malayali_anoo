@@ -159,6 +159,40 @@ export default function EventsPage() {
           </div>
         )}
       </section>
+
+      {/* JSON-LD Schema for Events */}
+      {filteredEvents.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(
+              filteredEvents.map((event: any) => ({
+                "@context": "https://schema.org",
+                "@type": "Event",
+                name: event.title,
+                startDate: event.date,
+                location: {
+                  "@type": "Place",
+                  name: event.location,
+                  address: {
+                    "@type": "PostalAddress",
+                    addressCountry: "UK"
+                  }
+                },
+                description: event.description,
+                image: event.imageUrl,
+                offers: {
+                  "@type": "Offer",
+                  url: event.ticketLink || "https://malayaliaaanoo.com",
+                  price: event.price ? parseFloat(String(event.price).replace(/[^0-9.]/g, "")) || 0 : 0,
+                  priceCurrency: "GBP",
+                  availability: "https://schema.org/InStock"
+                }
+              }))
+            )
+          }}
+        />
+      )}
     </div>
   );
 }

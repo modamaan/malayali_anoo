@@ -11,8 +11,23 @@ const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 const caveat = Caveat({ subsets: ["latin"], variable: "--font-caveat" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://malayaliaaanoo.co.uk'),
   title: "Malayali Aaanoo | Premium Media & Entertainment",
   description: "Malayali Aaanoo is a premier media and entertainment company focusing on podcasts, interviews, talk shows, and community events in the UK.",
+  keywords: ["Malayali events UK", "Kerala community UK", "Malayalam podcast", "UK Malayali", "Malayali Aaanoo"],
+  openGraph: {
+    type: "website",
+    locale: "en_GB",
+    url: "/",
+    title: "Malayali Aaanoo | Premium Media & Entertainment",
+    description: "Malayali Aaanoo is a premier media and entertainment company focusing on podcasts, interviews, talk shows, and community events in the UK.",
+    siteName: "Malayali Aaanoo",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Malayali Aaanoo | Premium Media & Entertainment",
+    description: "Malayali Aaanoo is a premier media and entertainment company focusing on podcasts, interviews, talk shows, and community events in the UK.",
+  }
 };
 
 export default function RootLayout({

@@ -113,6 +113,38 @@ export default async function Home() {
 
       {/* ── Trust / Partners ── */}
       <TrustSection />
+
+      {/* JSON-LD Schema for Events */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            events.map((event: any) => ({
+              "@context": "https://schema.org",
+              "@type": "Event",
+              name: event.title,
+              startDate: event.date,
+              location: {
+                "@type": "Place",
+                name: event.location,
+                address: {
+                  "@type": "PostalAddress",
+                  addressCountry: "UK"
+                }
+              },
+              description: event.description,
+              image: event.image_url,
+              offers: {
+                "@type": "Offer",
+                url: event.ticket_link || "https://malayaliaaanoo.com",
+                price: event.price ? parseFloat(String(event.price).replace(/[^0-9.]/g, "")) || 0 : 0,
+                priceCurrency: "GBP",
+                availability: "https://schema.org/InStock"
+              }
+            }))
+          )
+        }}
+      />
     </div>
   );
 }
