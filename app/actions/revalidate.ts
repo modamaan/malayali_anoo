@@ -9,8 +9,15 @@ export async function revalidateSite() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
   
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'admin') throw new Error('Unauthorized')
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('role')
+    .ilike('email', user.email!)
+    .single()
+
+  if (error || !profile || profile.role !== 'admin') {
+    throw new Error('Unauthorized')
+  }
 
   // Revalidate the entire site cache (all pages and layouts)
   revalidatePath('/', 'layout')

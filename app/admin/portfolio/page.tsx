@@ -93,7 +93,12 @@ export default function AdminPortfolioPage() {
         category: categories.length > 0 ? categories[0].title : 'Others',
       })
       fetchVideosAndCategories()
-      await revalidateSite()
+      try {
+        await revalidateSite()
+      } catch (err: any) {
+        console.error('Revalidation failed:', err)
+        alert('Item added, but failed to revalidate cache: ' + err.message)
+      }
     } else {
       alert('Error adding video: ' + error.message)
     }
@@ -111,7 +116,12 @@ export default function AdminPortfolioPage() {
 
     if (!error) {
       fetchVideosAndCategories()
-      await revalidateSite()
+      try {
+        await revalidateSite()
+      } catch (err: any) {
+        console.error('Revalidation failed:', err)
+        alert('Item deleted, but failed to revalidate cache: ' + err.message)
+      }
     } else {
       alert('Error deleting video: ' + error.message)
     }
