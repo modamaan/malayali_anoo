@@ -12,6 +12,6 @@ export async function revalidateSite() {
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'admin') throw new Error('Unauthorized')
 
-  revalidatePath('/', 'page')
-  revalidatePath('/portfolio', 'page')
+  // Revalidate the entire site cache (all pages and layouts)
+  revalidatePath('/', 'layout')
 }

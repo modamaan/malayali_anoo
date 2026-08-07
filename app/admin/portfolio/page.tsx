@@ -219,7 +219,19 @@ export default function AdminPortfolioPage() {
                 videos.map(video => (
                   <div key={video.id} className="glass p-4 rounded-xl border border-white/10 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={video.thumbnail_url} alt={video.title} className="w-full sm:w-32 h-48 sm:h-20 object-cover rounded-lg shrink-0" />
+                    <img 
+                      src={video.thumbnail_url} 
+                      alt={video.title} 
+                      className="w-full sm:w-32 h-48 sm:h-20 object-cover rounded-lg shrink-0" 
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        if (target.src.includes('hqdefault.jpg')) {
+                          target.src = target.src.replace('hqdefault.jpg', 'mqdefault.jpg');
+                        } else {
+                          target.src = '/malayali_logo.png';
+                        }
+                      }}
+                    />
                     <div className="flex-1 min-w-0 w-full">
                       <h3 className="text-white font-bold truncate">{video.title}</h3>
                       <div className="text-sm text-gray-400 flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">

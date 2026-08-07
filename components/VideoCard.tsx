@@ -14,12 +14,22 @@ function extractYoutubeId(url: string): string | null {
 
 export default function VideoCard({ video, priority = false }: { video: Video, priority?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
+  const initialSrc = video.thumbnail_url || video.thumbnailUrl || '';
+  const [imgSrc, setImgSrc] = useState(initialSrc);
   const videoId = extractYoutubeId(video.link);
 
   const handleClick = (e: React.MouseEvent) => {
     if (videoId) {
       e.preventDefault();
       setIsOpen(true);
+    }
+  };
+
+  const handleError = () => {
+    if (typeof imgSrc === 'string' && imgSrc.includes('hqdefault.jpg')) {
+      setImgSrc(imgSrc.replace('hqdefault.jpg', 'mqdefault.jpg'));
+    } else {
+      setImgSrc('/malayali_logo.png');
     }
   };
 
@@ -35,12 +45,13 @@ export default function VideoCard({ video, priority = false }: { video: Video, p
         {/* Thumbnail */}
         <div className="relative w-full aspect-video overflow-hidden">
           <Image
-            src={video.thumbnail_url || video.thumbnailUrl || ''}
+            src={imgSrc}
             alt={video.title}
             fill
             sizes="(max-width: 640px) 260px, (max-width: 768px) 300px, 320px"
             className="object-cover group-hover:scale-105 transition-transform duration-700"
             priority={priority}
+            onError={handleError}
           />
           {/* Dark overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1d]/80 via-black/20 to-transparent" />

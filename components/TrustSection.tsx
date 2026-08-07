@@ -55,22 +55,6 @@ export default async function TrustSection() {
         </p>
       </div>
 
-      {/* ───── Stats row ───── */}
-      <div className="relative z-10 max-w-2xl mx-auto px-6 mb-14">
-        <div className="flex items-center justify-center divide-x divide-white/[0.08]">
-          {TRUST_STATS.map((stat) => (
-            <div key={stat.label} className="flex-1 text-center px-6 py-3">
-              <p className="text-white text-xl md:text-2xl font-bold tracking-tight font-heading">
-                {stat.value}
-              </p>
-              <p className="text-white/50 text-[10px] md:text-xs uppercase tracking-widest mt-0.5">
-                {stat.label}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* ───── Marquee block ───── */}
       <div className="pause-marquee relative z-10 flex flex-col">
         {/* Border top */}

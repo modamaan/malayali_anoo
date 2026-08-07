@@ -78,17 +78,6 @@ export default function AboutPage() {
                 </p>
               </div>
             </div>
-
-            <div className="mt-12 grid grid-cols-2 gap-4 sm:gap-8 border-t border-white/10 pt-10">
-              <div>
-                <h4 className="text-4xl sm:text-5xl font-black text-primary-500 font-heading mb-1 sm:mb-2">50+</h4>
-                <p className="text-gray-400 font-medium text-sm sm:text-base">Projects Completed</p>
-              </div>
-              <div>
-                <h4 className="text-4xl sm:text-5xl font-black text-primary-500 font-heading mb-1 sm:mb-2">1M+</h4>
-                <p className="text-gray-400 font-medium text-sm sm:text-base">Online Reach</p>
-              </div>
-            </div>
           </div>
         </div>
       </section>
