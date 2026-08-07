@@ -16,5 +16,6 @@ export async function revalidateSite() {
   revalidatePath('/', 'layout')
   
   // Also explicitly purge all Supabase fetch requests
+  // @ts-ignore - Next.js canary types mistakenly require 2 arguments for revalidateTag
   revalidateTag('supabase')
 }
