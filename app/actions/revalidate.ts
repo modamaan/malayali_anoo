@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 
 export async function revalidateSite() {
@@ -14,4 +14,7 @@ export async function revalidateSite() {
 
   // Revalidate the entire site cache (all pages and layouts)
   revalidatePath('/', 'layout')
+  
+  // Also explicitly purge all Supabase fetch requests
+  revalidateTag('supabase')
 }

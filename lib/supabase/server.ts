@@ -24,6 +24,11 @@ export async function createClient() {
           }
         },
       },
+      global: {
+        fetch: (url, options) => {
+          return fetch(url, { ...options, next: { tags: ['supabase'] } })
+        }
+      }
     }
   )
 }
