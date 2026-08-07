@@ -2,7 +2,7 @@ import PortfolioGrid from "@/components/PortfolioGrid";
 import { createPublicClient } from "@/lib/supabase/public";
 import { Suspense } from "react";
 
-export const revalidate = 3600; // Cache for 1 hour
+export const revalidate = 0; // Always fetch fresh data
 
 export const metadata = {
   title: 'Portfolio | Malayali Aaanoo',

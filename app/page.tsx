@@ -5,8 +5,8 @@ import TrustSection from "@/components/TrustSection";
 import Link from "next/link";
 import { createPublicClient } from "@/lib/supabase/public";
 
-// Revalidate this page every hour (3600 seconds)
-export const revalidate = 3600;
+// Always fetch fresh data — cache invalidation is unreliable on self-hosted environments
+export const revalidate = 0;
 
 export default async function Home() {
   const supabase = createPublicClient();

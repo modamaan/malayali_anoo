@@ -1,7 +1,7 @@
 import { createPublicClient } from "@/lib/supabase/public"
 import { ExpandableGallery } from "@/components/ui/expandable-gallery"
 
-export const revalidate = 3600
+export const revalidate = 0 // Always fetch fresh data
 
 export const metadata = {
   title: 'Gallery - Malayali Aaanoo',
