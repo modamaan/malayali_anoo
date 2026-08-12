@@ -99,13 +99,15 @@ export default function EventsPage() {
                     <ImageCarousel images={event.images} alt={event.title} />
                   ) : (
                     <div className="relative w-full h-full overflow-hidden bg-black">
-                      <Image
-                        src={event.imageUrl}
-                        alt={event.title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                        className="object-contain transform group-hover:scale-105 transition-transform duration-700"
-                      />
+                      {event.imageUrl ? (
+                        <Image
+                          src={event.imageUrl}
+                          alt={event.title}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-contain transform group-hover:scale-105 transition-transform duration-700"
+                        />
+                      ) : null}
                     </div>
                   )}
                   <div className="absolute top-4 left-4 z-30 bg-primary-600 text-white px-4 py-2 rounded-lg font-bold shadow-lg backdrop-blur-sm text-center">

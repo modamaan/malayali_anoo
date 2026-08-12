@@ -40,6 +40,18 @@ export async function deleteCategory(id: string) {
   await revalidateSite()
 }
 
+export async function updateCategory(id: string, title: string, subtitle: string) {
+  const supabase = await requireAdmin()
+  const { error } = await supabase
+    .from('video_categories')
+    .update({ title, subtitle })
+    .eq('id', id)
+  if (error) throw new Error(error.message)
+
+  revalidatePath('/admin/categories')
+  await revalidateSite()
+}
+
 export async function reorderCategories(updates: { id: string, sort_order: number }[]) {
   const supabase = await requireAdmin()
   

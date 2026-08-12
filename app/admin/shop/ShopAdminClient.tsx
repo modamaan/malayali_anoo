@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect, useTransition } from 'react'
+import { useState, useEffect, useTransition, useMemo } from 'react'
 import { addProduct, deleteProduct, reorderProducts, updateProduct } from '@/app/actions/products'
+import { addCustomColor, deleteCustomColor } from '@/app/actions/colors'
 import { createClient } from '@/lib/supabase/client'
 import type { MerchItem } from '@/lib/types'
 
 const AVAILABLE_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
-const AVAILABLE_COLORS = [
+const DEFAULT_COLORS = [
   { hex: '#000000', name: 'Black' },
   { hex: '#ffffff', name: 'White' },
   { hex: '#ff0000', name: 'Red' },
@@ -19,15 +20,142 @@ const AVAILABLE_COLORS = [
   { hex: '#c0c0c0', name: 'Silver' },
 ]
 
+export function parseColorString(c: string) {
+  if (c.includes('|')) {
+    const [hex, name] = c.split('|')
+    return { hex, name: name || 'Custom' }
+  }
+  // Fallback for legacy hex-only strings
+  const matched = DEFAULT_COLORS.find(dc => dc.hex.toLowerCase() === c.toLowerCase())
+  return { hex: c, name: matched ? matched.name : 'Custom' }
+}
+
+// ─── Color Selector Component ────────────────────────────────────────────────
+function ColorSelector({ 
+  selectedColors, 
+  onChange, 
+  allAvailableColors, 
+  onAddCustom,
+  onDeleteCustom
+}: { 
+  selectedColors: string[], 
+  onChange: (colors: string[]) => void, 
+  allAvailableColors: {hex: string, name: string, raw: string, isCustom?: boolean}[],
+  onAddCustom?: (hex: string, name: string) => void,
+  onDeleteCustom?: (hex: string, name: string) => void
+}) {
+  const [customHex, setCustomHex] = useState('')
+  const [customName, setCustomName] = useState('')
+
+  const toggleColor = (raw: string) => {
+    if (selectedColors.includes(raw)) {
+      onChange(selectedColors.filter(c => c !== raw))
+    } else {
+      onChange([...selectedColors, raw])
+    }
+  }
+
+  const handleAddCustom = async () => {
+    if (!customName.trim() || !customHex.trim()) return
+    const name = customName.trim()
+    const hex = customHex
+    const raw = `${hex}|${name}`
+    
+    // Call the server action instead of localStorage
+    onAddCustom?.(hex, name)
+
+    if (!selectedColors.includes(raw)) {
+      onChange([...selectedColors, raw])
+    }
+    setCustomName('')
+    setCustomHex('')
+  }
+
+  const displayColors = useMemo(() => {
+    const map = new Map<string, {hex: string, name: string, raw: string, isCustom?: boolean}>()
+    
+    // 1. Add all globally available colors
+    allAvailableColors.forEach(c => {
+      map.set(c.raw, c)
+    })
+    
+    // 2. Add any selected custom colors that aren't yet in the global list
+    selectedColors.forEach(raw => {
+      if (!map.has(raw)) {
+        const parsed = parseColorString(raw)
+        map.set(raw, { hex: parsed.hex, name: parsed.name, raw, isCustom: true })
+      }
+    })
+    
+    return Array.from(map.values())
+  }, [allAvailableColors, selectedColors])
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-2">
+        {displayColors.map(color => (
+          <button key={color.raw} type="button"
+            onClick={() => toggleColor(color.raw)}
+            className={`px-3 py-1.5 rounded-lg text-sm font-bold border transition-all flex items-center gap-2 ${selectedColors.includes(color.raw) ? 'bg-transparent border-primary-500 text-white' : 'bg-transparent border-white/10 text-gray-400 hover:border-white/30'}`}
+          >
+            <span className="w-4 h-4 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: color.hex }} />
+            {color.name}
+            {color.isCustom && onDeleteCustom && (
+              <span
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (confirm(`Remove custom color ${color.name}?`)) {
+                    onDeleteCustom(color.hex, color.name);
+                  }
+                }}
+                className="w-4 h-4 ml-1 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors cursor-pointer shrink-0 text-[10px]"
+                title="Remove Custom Color"
+              >
+                ✕
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+        <div className="flex flex-wrap items-center gap-3 bg-white/5 p-3 rounded-lg border border-white/10 w-full">
+          <input 
+            type="text" 
+            placeholder="Hex (#000)" 
+            value={customHex} 
+            onChange={e => setCustomHex(e.target.value)}
+            className="w-24 shrink-0 bg-transparent border-b border-white/10 px-2 py-1.5 text-sm text-white focus:outline-none focus:border-primary-500 font-mono uppercase"
+          />
+          <input 
+            type="text" 
+            placeholder="Color name..." 
+            value={customName}
+            onChange={e => setCustomName(e.target.value)}
+            className="flex-1 min-w-[120px] bg-transparent border-b border-white/10 px-2 py-1.5 text-sm text-white focus:outline-none focus:border-primary-500"
+          />
+          <button 
+            type="button" 
+            onClick={handleAddCustom}
+            disabled={!customName.trim() || !customHex.trim()}
+            className="shrink-0 px-4 py-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded disabled:opacity-50 transition-colors"
+          >
+            Add
+          </button>
+        </div>
+    </div>
+  )
+}
+
 // ─── Edit Modal ────────────────────────────────────────────────────────────────
 function EditModal({
   product,
   onClose,
   onSave,
+  allAvailableColors
 }: {
   product: MerchItem
   onClose: () => void
   onSave: (updated: MerchItem) => void
+  allAvailableColors: {hex: string, name: string, raw: string}[]
 }) {
   const supabase = createClient()
   const [formData, setFormData] = useState({
@@ -161,17 +289,12 @@ function EditModal({
           {/* Colors */}
           <div>
             <label className="block text-sm text-gray-400 mb-2">Colors</label>
-            <div className="flex flex-wrap gap-2">
-              {AVAILABLE_COLORS.map(color => (
-                <button key={color.hex} type="button"
-                  onClick={() => setColors(prev => prev.includes(color.hex) ? prev.filter(c => c !== color.hex) : [...prev, color.hex])}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-bold border transition-all flex items-center gap-2 ${colors.includes(color.hex) ? 'bg-transparent border-primary-500 text-white' : 'bg-transparent border-white/10 text-gray-400 hover:border-white/30'}`}
-                >
-                  <span className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: color.hex }} />
-                  {color.name}
-                </button>
-              ))}
-            </div>
+            <ColorSelector 
+              selectedColors={colors} 
+              onChange={setColors} 
+              allAvailableColors={allAvailableColors} 
+              onAddCustom={addCustomColor}
+            />
           </div>
 
           {/* Existing Images */}
@@ -216,9 +339,39 @@ function EditModal({
 }
 
 // ─── Main Admin Client ─────────────────────────────────────────────────────────
-export default function ShopAdminClient({ initialProducts }: { initialProducts: MerchItem[] }) {
+export default function ShopAdminClient({ 
+  initialProducts, 
+  dbColors 
+}: { 
+  initialProducts: MerchItem[],
+  dbColors: { hex: string, name: string }[] 
+}) {
   const [products, setProducts] = useState<MerchItem[]>(initialProducts)
   const supabase = createClient()
+
+  // Dynamic Color Presets
+  const allAvailableColors = useMemo(() => {
+    const map = new Map<string, {hex: string, name: string, raw: string, isCustom?: boolean}>()
+    
+    // Add defaults
+    DEFAULT_COLORS.forEach(c => {
+      const raw = `${c.hex}|${c.name}`
+      map.set(raw, { hex: c.hex, name: c.name, raw, isCustom: false })
+    })
+
+    // Add any from database
+    dbColors.forEach(c => {
+      const raw = `${c.hex}|${c.name}`
+      if (!map.has(raw)) {
+        map.set(raw, { hex: c.hex, name: c.name, raw, isCustom: true })
+      } else {
+        const existing = map.get(raw)!
+        existing.isCustom = true
+      }
+    })
+
+    return Array.from(map.values())
+  }, [dbColors])
 
   // Form State
   const [formData, setFormData] = useState({ name: '', description: '', price: '' })
@@ -264,7 +417,7 @@ export default function ShopAdminClient({ initialProducts }: { initialProducts: 
       }
       setProducts(prev => [...prev, optimisticProduct])
       setFormData({ name: '', description: '', price: '' })
-      setSelectedSizes([]); setColors(['#000000']); setFiles([])
+      setSelectedSizes([]); setColors([]); setFiles([])
       const fi = document.querySelector('input[type="file"]') as HTMLInputElement
       if (fi) fi.value = ''
 
@@ -331,6 +484,7 @@ export default function ShopAdminClient({ initialProducts }: { initialProducts: 
           product={editingProduct}
           onClose={() => setEditingProduct(null)}
           onSave={handleProductSaved}
+          allAvailableColors={allAvailableColors}
         />
       )}
 
@@ -377,17 +531,13 @@ export default function ShopAdminClient({ initialProducts }: { initialProducts: 
 
               <div>
                 <label className="block text-sm text-gray-400 mb-2">Colors</label>
-                <div className="flex flex-wrap gap-2">
-                  {AVAILABLE_COLORS.map(color => (
-                    <button key={color.hex} type="button"
-                      onClick={() => setColors(prev => prev.includes(color.hex) ? prev.filter(c => c !== color.hex) : [...prev, color.hex])}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-bold border transition-all flex items-center gap-2 ${colors.includes(color.hex) ? 'bg-transparent border-primary-500 text-white' : 'bg-transparent border-white/10 text-gray-400 hover:border-white/30'}`}
-                    >
-                      <span className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: color.hex }} />
-                      {color.name}
-                    </button>
-                  ))}
-                </div>
+                <ColorSelector 
+                  selectedColors={colors} 
+                  onChange={setColors} 
+                  allAvailableColors={allAvailableColors} 
+                  onAddCustom={addCustomColor}
+                  onDeleteCustom={deleteCustomColor}
+                />
               </div>
 
               <div>
@@ -417,58 +567,68 @@ export default function ShopAdminClient({ initialProducts }: { initialProducts: 
                   onDragEnter={() => handleDragEnter(index)}
                   onDragEnd={handleDragEnd}
                   onDragOver={(e) => e.preventDefault()}
-                  className={`glass p-4 rounded-xl border border-white/10 flex items-center gap-3 transition-all ${
+                  className={`glass p-4 rounded-xl border border-white/10 flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-4 transition-all ${
                     draggedIndex === index ? 'opacity-50 scale-[0.98] border-primary-500 bg-white/5 shadow-xl' : 'hover:border-white/30'
                   }`}
                 >
-                  {/* Mobile Arrows */}
-                  <div className="flex flex-col gap-1 shrink-0 lg:hidden">
-                    <button onClick={() => moveProduct(index, 'up')} disabled={index === 0 || isPending} className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-20 transition-all">▲</button>
-                    <button onClick={() => moveProduct(index, 'down')} disabled={index === products.length - 1 || isPending} className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-20 transition-all">▼</button>
-                  </div>
+                  <div className="flex items-center gap-3 flex-1 min-w-0 w-full sm:w-auto">
+                    {/* Mobile Arrows */}
+                    <div className="flex flex-col gap-1 shrink-0 lg:hidden">
+                      <button onClick={() => moveProduct(index, 'up')} disabled={index === 0 || isPending} className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-20 transition-all">▲</button>
+                      <button onClick={() => moveProduct(index, 'down')} disabled={index === products.length - 1 || isPending} className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-20 transition-all">▼</button>
+                    </div>
 
-                  {/* Desktop Drag Handle */}
-                  <div className="hidden lg:flex text-gray-500 cursor-grab hover:text-white transition-colors shrink-0">⠿</div>
+                    {/* Desktop Drag Handle */}
+                    <div className="hidden lg:flex text-gray-500 cursor-grab hover:text-white transition-colors shrink-0">⠿</div>
 
-                  {/* Thumbnail */}
-                  <div className="w-14 h-14 bg-zinc-800 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
-                    {product.images && product.images.length > 0 ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-xs text-gray-500">No Img</span>
-                    )}
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-white font-bold truncate">{product.name}</h3>
-                    <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      <span className="text-primary-500 font-bold text-sm">{product.currency || '£'}{product.price}</span>
-                      {product.sizes && product.sizes.length > 0 && (
-                        <span className="text-xs text-gray-400 bg-white/5 px-2 py-0.5 rounded">Sizes: {product.sizes.join(', ')}</span>
+                    {/* Thumbnail */}
+                    <div className="w-14 h-14 bg-zinc-800 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
+                      {product.images && product.images.length > 0 ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-xs text-gray-500">No Img</span>
                       )}
-                      <div className="flex gap-1">
-                        {product.colors?.map((c, i) => (
-                          <div key={i} className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: c }} />
-                        ))}
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-white font-bold truncate">{product.name}</h3>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <span className="text-primary-500 font-bold text-sm">{product.currency || '£'}{product.price}</span>
+                        {product.sizes && product.sizes.length > 0 && (
+                          <span className="text-xs text-gray-400 bg-white/5 px-2 py-0.5 rounded">Sizes: {product.sizes.join(', ')}</span>
+                        )}
+                        
+                        {/* Detailed Color Display */}
+                        <div className="flex flex-wrap gap-2 ml-1">
+                          {product.colors?.map((c, i) => {
+                            const parsed = parseColorString(c)
+                            return (
+                              <div key={i} className="flex items-center gap-1.5 bg-black/30 rounded-full pr-2 pl-0.5 py-0.5 border border-white/5" title={parsed.name}>
+                                <div className="w-3.5 h-3.5 rounded-full shadow-sm border border-white/20" style={{ backgroundColor: parsed.hex }} />
+                                <span className="text-[10px] text-gray-400 font-medium tracking-wide">{parsed.name}</span>
+                              </div>
+                            )
+                          })}
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Actions */}
-                  <div className="flex gap-2 shrink-0">
+                  <div className="flex gap-2 shrink-0 w-full sm:w-auto justify-end mt-2 sm:mt-0 pt-3 sm:pt-0 border-t border-white/5 sm:border-0">
                     <button
                       onClick={() => setEditingProduct(product)}
                       disabled={isPending}
-                      className="px-3 py-1.5 bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white rounded-lg transition-colors font-medium text-sm disabled:opacity-50"
+                      className="px-4 py-2 sm:px-3 sm:py-1.5 bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white rounded-lg transition-colors font-medium text-sm disabled:opacity-50"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDeleteProduct(product.id, product.name)}
                       disabled={isDeleting === product.id || isPending}
-                      className="px-3 py-1.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors font-medium text-sm disabled:opacity-50"
+                      className="px-4 py-2 sm:px-3 sm:py-1.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors font-medium text-sm disabled:opacity-50"
                     >
                       {isDeleting === product.id ? '...' : 'Delete'}
                     </button>

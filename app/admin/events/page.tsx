@@ -4,11 +4,227 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { revalidateSite } from '@/app/actions/revalidate'
 
+// ─── Edit Modal ────────────────────────────────────────────────────────────────
+function EditModal({
+  event,
+  onClose,
+  onSave,
+}: {
+  event: any
+  onClose: () => void
+  onSave: (updated: any) => void
+}) {
+  const supabase = createClient()
+  const [title, setTitle] = useState(event.title)
+  const [date, setDate] = useState(event.date)
+  const [time, setTime] = useState(event.time || '')
+  const [location, setLocation] = useState(event.location)
+  const [description, setDescription] = useState(event.description)
+  const [price, setPrice] = useState(event.price || '')
+  const [ticketLink, setTicketLink] = useState(event.ticket_link || '')
+  const [mainImage, setMainImage] = useState<File | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+
+  const uploadImage = async (file: File) => {
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`
+    const filePath = `${fileName}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('events')
+      .upload(filePath, file)
+
+    if (uploadError) {
+      throw uploadError
+    }
+
+    const { data } = supabase.storage.from('events').getPublicUrl(filePath)
+    return data.publicUrl
+  }
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!title || !date || !location || !description) return
+    setIsSaving(true)
+
+    try {
+      let image_url = event.image_url
+      if (mainImage) {
+        image_url = await uploadImage(mainImage)
+      }
+
+      const updates = {
+        title,
+        date,
+        time: time || null,
+        location,
+        description,
+        price: price || null,
+        ticket_link: ticketLink || null,
+        image_url,
+      }
+
+      const { error } = await supabase
+        .from('events')
+        .update(updates)
+        .eq('id', event.id)
+
+      if (error) throw error
+
+      onSave({ ...event, ...updates })
+      onClose()
+      await revalidateSite()
+    } catch (err: any) {
+      alert('Error saving: ' + err.message)
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+      <div
+        className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between p-6 border-b border-white/10 sticky top-0 bg-zinc-900 z-10">
+          <h2 className="text-xl font-bold text-white">Edit Event</h2>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-all"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={handleSave} className="p-6 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Title *</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+                required
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Date *</label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500 [color-scheme:dark]"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Time</label>
+                <input
+                  type="text"
+                  value={time}
+                  placeholder="e.g. 6:00 PM"
+                  onChange={(e) => setTime(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Location *</label>
+              <input
+                type="text"
+                value={location}
+                placeholder="e.g. Northampton"
+                onChange={(e) => setLocation(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Price</label>
+              <input
+                type="text"
+                value={price}
+                placeholder="e.g. £160 or Free"
+                onChange={(e) => setPrice(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-300 mb-1">Description *</label>
+              <textarea
+                value={description}
+                rows={3}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+                required
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-300 mb-1">Ticket/Registration Link</label>
+              <input
+                type="url"
+                value={ticketLink}
+                placeholder="https://..."
+                onChange={(e) => setTicketLink(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+              />
+            </div>
+            
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-300 mb-1">Replace Main Image (Optional)</label>
+              {event.image_url && (
+                <div className="mb-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={event.image_url} alt="Current" className="h-16 w-16 object-cover rounded border border-white/10" />
+                </div>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setMainImage(e.target.files?.[0] || null)}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-500 file:text-white hover:file:bg-primary-600"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-4 border-t border-white/10 mt-6">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-2.5 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:border-white/30 transition-all font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="flex-1 py-2.5 rounded-lg bg-primary-600 hover:bg-primary-500 text-white font-bold transition-colors disabled:opacity-50"
+            >
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+
 export default function AdminEvents() {
   const [events, setEvents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [isAdding, setIsAdding] = useState(false)
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
+  const [editingEvent, setEditingEvent] = useState<any | null>(null)
   const supabase = createClient()
 
   // Form State
@@ -131,9 +347,21 @@ export default function AdminEvents() {
     }
     setIsDeleting(null)
   }
+  
+  const handleEventSaved = (updated: any) => {
+    setEvents(prev => prev.map(e => e.id === updated.id ? updated : e))
+  }
 
   return (
     <div className="space-y-10">
+      {/* Edit Modal */}
+      {editingEvent && (
+        <EditModal
+          event={editingEvent}
+          onClose={() => setEditingEvent(null)}
+          onSave={handleEventSaved}
+        />
+      )}
       
       {/* ADD NEW EVENT FORM */}
       <section>
@@ -304,13 +532,21 @@ export default function AdminEvents() {
                   </p>
                   <p className="text-sm text-gray-300 mb-4 line-clamp-3 flex-grow">{event.description}</p>
                   
-                  <button
-                    onClick={() => handleDeleteEvent(event.id)}
-                    disabled={isDeleting === event.id}
-                    className="w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-medium rounded-lg transition-colors border border-red-500/20 disabled:opacity-50 mt-auto"
-                  >
-                    {isDeleting === event.id ? 'Deleting...' : 'Delete Event'}
-                  </button>
+                  <div className="flex gap-2 w-full mt-auto">
+                    <button
+                      onClick={() => setEditingEvent(event)}
+                      className="flex-1 py-2 bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white font-medium rounded-lg transition-colors border border-blue-500/20 text-sm"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteEvent(event.id)}
+                      disabled={isDeleting === event.id}
+                      className="flex-1 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-medium rounded-lg transition-colors border border-red-500/20 disabled:opacity-50 text-sm"
+                    >
+                      {isDeleting === event.id ? 'Deleting...' : 'Delete'}
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
