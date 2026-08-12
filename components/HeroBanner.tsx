@@ -97,11 +97,11 @@ export default function HeroBanner({ banners }: { banners: Banner[] }) {
             {/* Background Image / Video */}
             <div className="absolute inset-0 bg-black">
               {hasVideo ? (
-                <div className="relative w-full h-full scale-[1.3] md:scale-[1.5] pointer-events-none bg-zinc-950">
+                <div className="relative w-full h-full scale-110 md:scale-[1.25] pointer-events-none bg-zinc-950">
                   {isActive && (
                     <iframe
                       id={`yt-${banner.id}`}
-                      src={`https://www.youtube.com/embed/${youtubeId}?enablejsapi=1&autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&showinfo=0&rel=0&modestbranding=1`}
+                      src={`https://www.youtube.com/embed/${youtubeId}?enablejsapi=1&autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&showinfo=0&rel=0&modestbranding=1&vq=hd1080`}
                       className="absolute top-1/2 left-1/2 w-[100vw] h-[56.25vw] min-h-[100vh] min-w-[177.77vh] -translate-x-1/2 -translate-y-1/2"
                       allow="autoplay; encrypted-media"
                     ></iframe>
